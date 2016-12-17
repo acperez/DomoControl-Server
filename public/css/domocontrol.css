@@ -1,0 +1,156 @@
+html, body {
+  padding: 0;
+  margin: 0;
+  background: url('/img/micro_carbon.png');
+  /*background-color: #650465;*/
+}
+
+.header {
+  position: fixed;
+  width: 100%;
+  background-color: #350d69;
+  color: #ffffff;
+  z-index: 100;
+}
+
+#logo {
+  float: left;
+}
+
+#logo img {
+  vertical-align: middle;
+  margin: 0 0.5em;
+}
+
+#logo span {
+  vertical-align: middle;
+  font-size: 2em;
+}
+
+#settingsBtn {
+  position: relative;
+  float: right;
+  height: 50px;
+  width: 50px;
+  vertical-align: middle;
+  margin: 0.2em 1em;
+  cursor: pointer;
+}
+
+#settingsBtn img {
+  position: absolute;
+  -webkit-transition: all 1s ease-in-out;
+  transition: all 800ms ease-in-out;
+}
+
+#settingsBtn .back {
+  opacity: 0;
+}
+
+#settingsBtn .front {
+  opacity: 1;
+}
+
+#settingsBtn.enabled .back {
+  opacity:1;
+  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+}
+
+#settingsBtn.enabled .front {
+ opacity:0;
+ -webkit-transform: scale(0);
+ transform: scale(0);
+ -webkit-transform: rotateY(180deg);
+ transform: rotateY(180deg);
+}
+
+.menu_container {
+  position: absolute;
+  height: 100%;
+  width: 25%;
+}
+
+.menu {
+  position: absolute;
+  background-color: #655c02;
+  height: 100%;
+  width:100%;
+  padding-top: 57px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  border-width: 0 2px 0 0;
+  border-color: #350d69;
+  border-style: solid;
+  left: 0
+}
+
+.menu_anim_fade_out {
+  -webkit-transition: left 600ms ease-in;
+  transition: left 500ms ease-in;
+}
+
+.menu_anim_fade_in {
+  -webkit-transition: left 500ms ease-out;
+  transition: left 300ms ease-out;
+}
+
+.menu_anim {
+  left: -120%;
+}
+
+.menu_selector {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  height: 100%;
+  margin-right: -2px;
+}
+
+#menu_settings {
+  display: none;
+}
+
+.menu_header {
+  color: white;
+  font-size: 1.6em;
+  text-align: center;
+  padding: 0.6em 0;
+  margin: 0;
+}
+
+.menu_item {
+  position: relative;
+  text-align: center;
+  font-size: 1.4em;
+  background-color: #9b8d06;
+  margin: 0;
+  padding: 0.3em 0;
+  cursor: pointer;
+  border-width: 1px 0 0;
+  border-color: black;
+  border-style: solid;
+}
+
+.content_container {
+  position: absolute;
+  left: 25%;
+  height: 100%;
+  width: 75%;
+}
+
+.content_panel {
+  position: absolute;
+  height: 100%;
+  width:100%;
+  padding-top: 57px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  left: 0;
+  z-index: 0;
+}
+
+.content {
+}

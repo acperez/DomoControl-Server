@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+    <head>
+        <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="http://localhost:9000/favicon.ico">
+        <link rel="apple-touch-icon" sizes="57x57" href="/img/icons/favicon-57.png">
+        <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/img/icons/favicon-57.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/img/icons/favicon-72.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/img/icons/favicon-114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/img/icons/favicon-120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/img/icons/favicon-144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/img/icons/favicon-152.png">
+        <meta name="application-name" content="DomoControl">
+        <meta name="msapplication-TileImage" content="/img/icons/favicon-144.png">
+        <meta name="msapplication-TileColor" content="#2A2A2A">
+
+        <meta charset="UTF-8">
+        <title>DomoControl</title>
+
+        <link rel="stylesheet" href="css/domocontrol.css">
+        <link rel="stylesheet" href="css/switches.css">
+
+        <script type="text/javascript" src="js/http_client.js"></script>
+        <script type="text/javascript" src="js/menu.js"></script>
+        <script type="text/javascript" src="js/animations.js"></script>
+        <script type="text/javascript" src="js/systems.js"></script>
+        <script type="text/javascript" src="js/switches.js"></script>
+        <script type="text/javascript" src="js/domocontrol.js"></script>
+    </head>
+
+    <body onload="init()">
+        <div class="header">
+            <div id="logo">
+                <img height="57px" src="img/home.svg"/>
+                <span>DomoControl</span>
+            </div>
+            <div id="settingsBtn">
+                <img class="front" src="img/settings.svg"/>
+                <img class="back" src="img/close.svg"/>
+            </div>
+        </div>
+
+        <div class="menu_container">
+                <div id="menu" class="menu menu_anim_fade_out">
+                    <div id="menu_items">
+                        <div class="menu_header">Systems</div>
+                        <div id="menu_switches" class="menu_item">Switches<img id="menu_selector" class="menu_selector" src="img/selector.svg"/></div>
+                        <div id="menu_philips_hue" class="menu_item">Philips Hue</div>
+                        <div id="menu_wemo" class="menu_item">Wemo</div>
+                        <div class="menu_header">Actions</div>
+                        <div id="menu_events" class="menu_item">Events</div>
+                    </div>
+                    <div id="menu_settings">
+                        <div class="menu_header">Settings</div>
+                        <div id="menu_settings_philips_hue" class="menu_item">Philips Hue</div>
+                        <div id="menu_settings_wemo" class="menu_item">Wemo</div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="content_container">
+            <div id="content_panel" class="content_panel">
+
+
+
+
+
+
+
+                <div class="button">
+                    <div class="btn_label">Wemo light</div>
+                    <a rel="external" id="button">&#xF011;</a>
+                    <span></span>
+                </div>
+
+                <div class="button2">
+                    <div class="btn_label">Wemo light</div>
+                    <a rel="external" id="button2">&#xF011;</a>
+                </div>
+
+
+                <div id="switches">
+
+                    <div id="switches_empty">
+                        There are no switches available
+                    </div>
+
+                    <div id="switches_items"></div>
+                </div>
+
+            </div>
+        </div>
+    </body>
+
+</html>

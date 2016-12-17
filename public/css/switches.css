@@ -1,0 +1,247 @@
+#switches {
+  height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#switches_empty {
+  display: none;
+  color: white;
+  font-size: 2em;
+}
+
+#switches_items {
+  display: none;
+}
+
+
+
+@font-face {
+  font-family: "FontAwesome";
+  src: url("/fonts/power.eot");
+  src: url("/fonts/power.eot?#iefix") format('eot'),
+       url("/fonts/power.woff") format('woff'),
+       url("/fonts/power.ttf") format('truetype'),
+       url("/fonts/power.svg#Power") format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.button {
+  float: left;
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Chrome/Safari/Opera */
+       -khtml-user-select: none; /* Konqueror */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none;
+}
+:active, :focus {
+  outline: 0;
+}
+
+
+.button a {
+  font-family: "FontAwesome";
+  display: block;
+  position: relative;
+  width: 70px;
+  height: 70px;
+
+  padding: 10px;
+  margin: 0 auto;
+
+  font-size: 5.6em;
+  color: rgb(37,37,37);
+  text-shadow: 0px 2px 1px rgba(250,250,250,0.1);
+
+  text-decoration: none;
+  cursor: pointer;
+
+  border-radius: 45px;
+  text-align: center;
+
+  background-color: rgb(83,87,93);
+    box-shadow: 0px 3px 0px 0px rgb(34,34,34),
+          0px 7px 10px 0px rgb(17,17,17),
+          inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
+          inset 0px -12px 35px 0px rgba(0, 0, 0, .5);
+
+  transition: color 350ms, text-shadow 350ms;
+    -o-transition: color 350ms, text-shadow 350ms;
+    -moz-transition: color 350ms, text-shadow 350ms;
+    -webkit-transition: color 350ms, text-shadow 350ms;
+}
+
+.button a:before {
+  content: "";
+  width: 100px;
+  height: 100px;
+  z-index: -2;
+  position: absolute;
+  background-color: rgb(26,27,29);
+  left: -5px;
+  top: 0px;
+  border-radius: 50px;
+  box-shadow: 0px 4px 0px 0px rgba(250,250,250,0.1),
+        inset 0px 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.button a + span {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: rgb(226,0,0);
+  box-shadow: inset 0px 2px 0px 0px rgba(250,250,250,0.5),
+        0px 0px 4px 3px rgba(226,0,0,0.5);
+  border-radius: 8px;
+  margin: 20px auto;
+}
+
+.button a:active {
+    box-shadow: 0px 0px 0px 0px rgb(34,34,34),
+    			0px 3px 7px 0px rgb(17,17,17),
+    			inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
+    			inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
+    background-color: rgb(83,87,93);
+  	top: 3px;
+}
+
+.button a.on {
+    box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
+          0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
+          inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */
+          inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
+    background-color: rgb(83,87,93);
+    top: 3px;
+    color: #fff;
+    text-shadow: 0px 0px 20px rgb(250,250,250);
+}
+
+.button a:active:before, .button a.on:before {
+  top: -3px;
+  background-color: rgb(26,27,29);
+
+  box-shadow: 0px 4px 0px 0px rgba(250,250,250,0.1),
+              inset 0px 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.button a.on + span {
+  box-shadow: inset 0px 2px 0px 0px rgba(250,250,250,0.5),
+        0px 0px 4px 3px rgba(135,187,83,0.5);
+  background-color: rgb(135,187,83);
+
+  transition: background-color 350ms, box-shadow 700ms;
+    -o-transition: background-color 350ms, box-shadow 700ms;
+    -moz-transition: background-color 350ms, box-shadow 700ms;
+    -webkit-transition: background-color 350ms, box-shadow 700ms;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.button2 {
+  float: left;
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Chrome/Safari/Opera */
+       -khtml-user-select: none; /* Konqueror */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none;
+}
+
+.btn_label {
+  color: white;
+  font-size: 1.5em;
+  margin: 5px;
+}
+
+.button2 a {
+  font-family: "FontAwesome";
+  display: block;
+  position: relative;
+  width: 70px;
+  height: 70px;
+
+  padding: 10px;
+  margin: 0 auto;
+
+  font-size: 5.6em;
+  color: rgb(105,1,1);
+  text-shadow: 0px 2px 1px rgba(250,250,250,0.1);
+
+  text-decoration: none;
+  cursor: pointer;
+
+  border-radius: 45px;
+  text-align: center;
+
+  background-color: rgb(83,87,93);
+    box-shadow: 0px 3px 0px 0px rgb(34,34,34),
+          0px 7px 10px 0px rgb(17,17,17),
+          inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
+          inset 0px -12px 35px 0px rgba(0, 0, 0, .5);
+
+  transition: color 350ms, text-shadow 350ms;
+    -o-transition: color 350ms, text-shadow 350ms;
+    -moz-transition: color 350ms, text-shadow 350ms;
+    -webkit-transition: color 350ms, text-shadow 350ms;
+}
+
+.button2 a:before {
+  content: "";
+  width: 100px;
+  height: 100px;
+  z-index: -2;
+  position: absolute;
+  background-color: rgb(26,27,29);
+  left: -5px;
+  top: 0px;
+  border-radius: 50px;
+  box-shadow: 0px 4px 0px 0px rgba(250,250,250,0.1),
+        inset 0px 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.button2 a:active {
+    box-shadow: 0px 0px 0px 0px rgb(34,34,34),
+    			0px 3px 7px 0px rgb(17,17,17),
+    			inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
+    			inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
+    background-color: rgb(83,87,93);
+  	top: 3px;
+  	color: white;
+}
+
+.button2 a.on {
+    box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
+          0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
+          inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */
+          inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
+    background-color: rgb(83,87,93);
+    top: 3px;
+    color: #1d9e00;
+    text-shadow: 0px 0px 6px rgb(39,255,0);
+}
+
+.button2 a:active:before, .button2 a.on:before {
+  top: -3px;
+  background-color: rgb(26,27,29);
+
+  box-shadow: 0px 4px 0px 0px rgba(250,250,250,0.1),
+              inset 0px 4px 6px rgba(0, 0, 0, 0.5);
+}
