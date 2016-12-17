@@ -3,4 +3,24 @@
 # ~~~~
 
 # An example controller showing how to write asynchronous code
-GET     /                    controllers.DomoController.message
+GET     /systems                                controllers.DomoController.systems
+GET     /systems/switches                       controllers.DomoController.getAllSwitches
+
+GET     /system/:id/conf                        controllers.DomoController.getConf(id: Int)
+POST    /system/:id/conf                        controllers.DomoController.setConf(id: Int)
+
+GET     /system/:id/connection/status           controllers.DomoController.getConnectionStatus(id: Int)
+GET     /system/:id/connection/connect          controllers.DomoController.connect(id: Int)
+GET     /system/:id/connection/disconnect       controllers.DomoController.disconnect(id: Int)
+
+GET     /system/:id/switches                    controllers.DomoController.getSwitches(id: Int)
+GET     /system/:id/switch/:switch              controllers.DomoController.getSwitch(id: Int, switch: Int)
+
+GET     /system/:id/switches/:status            controllers.DomoController.setSwitchesStatus(id: Int, status: Int)
+GET     /system/:id/switches/extra/:data        controllers.DomoController.setSwitchesExtra(id: Int, data: Long)
+GET     /system/:id/switch/:switch/:status      controllers.DomoController.setSwitchStatus(id: Int, switch: Int, status: Int)
+GET     /system/:id/switch/:switch/extra/:data  controllers.DomoController.setSwitchExtra(id: Int, switch: Int, data: Int)
+
+
+GET  /                      controllers.Default.redirect(to = "index.html")
+GET  /*file                 controllers.Assets.at(path="/public", file)

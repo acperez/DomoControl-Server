@@ -1,0 +1,59 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+<defs>
+<font id="Power" horiz-adv-x="2048" >
+  <font-face 
+    font-family="Power"
+    font-weight="400"
+    font-stretch="normal"
+    units-per-em="2048"
+    panose-1="0 0 0 0 0 0 0 0 0 0"
+    ascent="1536"
+    descent="-512"
+    bbox="0 -31 1489 1536"
+    underline-thickness="102"
+    underline-position="-204"
+    unicode-range="U+000D-F204"
+  />
+    <missing-glyph />
+    <glyph glyph-name="uni2000" unicode="&#x2000;" horiz-adv-x="784" 
+ />
+    <glyph glyph-name="uni2001" unicode="&#x2001;" horiz-adv-x="1569" 
+ />
+    <glyph glyph-name="uni2002" unicode="&#x2002;" horiz-adv-x="784" 
+ />
+    <glyph glyph-name="uni2003" unicode="&#x2003;" horiz-adv-x="1569" 
+ />
+    <glyph glyph-name="uni2004" unicode="&#x2004;" horiz-adv-x="523" 
+ />
+    <glyph glyph-name="uni2005" unicode="&#x2005;" horiz-adv-x="392" 
+ />
+    <glyph glyph-name="uni2006" unicode="&#x2006;" horiz-adv-x="261" 
+ />
+    <glyph glyph-name="uni2007" unicode="&#x2007;" horiz-adv-x="261" 
+ />
+    <glyph glyph-name="uni2008" unicode="&#x2008;" horiz-adv-x="196" 
+ />
+    <glyph glyph-name="uni2009" unicode="&#x2009;" horiz-adv-x="313" 
+ />
+    <glyph glyph-name="uni200A" unicode="&#x200a;" horiz-adv-x="87" 
+ />
+    <glyph glyph-name="uni202F" unicode="&#x202f;" horiz-adv-x="313" 
+ />
+    <glyph glyph-name="guilsinglright" unicode="&#x203a;" 
+ />
+    <glyph glyph-name="uni205F" unicode="&#x205f;" horiz-adv-x="392" 
+ />
+    <glyph glyph-name="trademark" unicode="&#x2122;" 
+ />
+    <glyph glyph-name="infinity" unicode="&#x221e;" 
+ />
+    <glyph glyph-name="uniE000" unicode="&#xe000;" horiz-adv-x="1024" 
+d="M0 0z" />
+    <glyph glyph-name="uniF011" unicode="&#xf011;" horiz-adv-x="1488" 
+d="M0 713q0 186 86 349t240 267q12 10 28 6q18 -4 25 -16l90 -131q10 -12 6 -27.5t-16 -25.5q-106 -72 -164.5 -182.5t-58.5 -239.5q0 -104 39.5 -197.5t108.5 -162t162 -108.5t197 -40t197.5 40t163.5 108.5t109.5 161.5t39.5 198q0 129 -59 239.5t-164 182.5
+q-14 10 -16 24q-4 16 6 29l88 131q10 12 25.5 15t29.5 -5q154 -104 240 -267t86 -349q0 -154 -58.5 -289t-160 -236.5t-237.5 -160t-290 -58.5t-289 58.5t-236 160t-159.5 236.5t-58.5 289zM627 793v704q0 16 11 27.5t28 11.5h157q16 0 27.5 -11.5t11.5 -27.5v-704
+q0 -16 -11 -27.5t-28 -11.5h-157q-16 0 -27.5 11t-11.5 28z" />
+  </font>
+</defs></svg>
