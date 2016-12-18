@@ -1,8 +1,21 @@
 html, body {
   padding: 0;
   margin: 0;
-  background: url('/img/micro_carbon.png');
-  /*background-color: #650465;*/
+  /*background: url('/img/micro_carbon.png');*/
+  background-color: #333333;
+}
+
+* {
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
+  -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
+  outline: none !important;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none;
 }
 
 .header {
@@ -11,6 +24,9 @@ html, body {
   background-color: #350d69;
   color: #ffffff;
   z-index: 100;
+  border-width: 0px 0 1px 0;
+  border-style: solid;
+  border-color: #200049;
 }
 
 #logo {
@@ -80,19 +96,16 @@ html, body {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  border-width: 0 2px 0 0;
-  border-color: #350d69;
-  border-style: solid;
   left: 0
 }
 
 .menu_anim_fade_out {
-  -webkit-transition: left 600ms ease-in;
+  -webkit-transition: left 500ms ease-in;
   transition: left 500ms ease-in;
 }
 
 .menu_anim_fade_in {
-  -webkit-transition: left 500ms ease-out;
+  -webkit-transition: left 300ms ease-out;
   transition: left 300ms ease-out;
 }
 
@@ -105,7 +118,7 @@ html, body {
   top: 0;
   right: -2px;
   height: 100%;
-  margin-right: -2px;
+  z-index: 1;
 }
 
 #menu_settings {
@@ -128,9 +141,16 @@ html, body {
   margin: 0;
   padding: 0.3em 0;
   cursor: pointer;
-  border-width: 1px 0 0;
+  border-width: 0 0 1px 0;
   border-color: black;
   border-style: solid;
+}
+
+.menu_item_on {
+  -webkit-transition: all 100ms ease-in;
+  transition: all 60ms ease-in;
+  box-shadow: inset 0px -20px 51px 0px rgba(0, 0, 0, 0.5);
+  background-color: #D8C940;
 }
 
 .content_container {
@@ -138,6 +158,18 @@ html, body {
   left: 25%;
   height: 100%;
   width: 75%;
+}
+
+.menu_shadow {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  border-width: 0 2px 0 0;
+  border-color: black;
+  border-style: solid;
+  box-shadow: inset -10px 0px 33px 0px rgba(0,0,0,0.5);
+  pointer-events: none;
 }
 
 .content_panel {

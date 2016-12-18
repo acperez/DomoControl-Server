@@ -58,12 +58,16 @@ var Menu = (function() {
 
   function menuItemSelected(item) {
     if (settingsActive) {
-      settings.selection.removeChild(menu.selector);
+      settings.selection.removeChild(selector);
+      settings.selection.classList.remove('menu_item_on');
       item.appendChild(selector);
+      item.classList.add('menu_item_on');
       settings.selection = item;
     } else {
-      application.selection.removeChild(menu.selector);
+      application.selection.removeChild(selector);
+      application.selection.classList.remove('menu_item_on');
       item.appendChild(selector);
+      item.classList.add('menu_item_on');
       application.selection = item;
     }
   }
