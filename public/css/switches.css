@@ -1,18 +1,19 @@
 #switches {
   height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 #switches_empty {
   display: none;
   color: white;
   font-size: 2em;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 #switches_items {
   display: none;
+  margin: 0 auto;
 }
 
 @font-face {
@@ -92,23 +93,23 @@
 }
 
 .button a:active {
-    box-shadow: 0px 0px 0px 0px rgb(34,34,34),
-    			0px 3px 7px 0px rgb(17,17,17),
-    			inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
-    			inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
-    background-color: rgb(83,87,93);
-  	top: 3px;
+  box-shadow: 0px 0px 0px 0px rgb(34,34,34),
+        0px 3px 7px 0px rgb(17,17,17),
+        inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
+        inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
+  background-color: rgb(83,87,93);
+  top: 3px;
 }
 
 .button a.on {
-    box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
-          0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
-          inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */
-          inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
-    background-color: rgb(83,87,93);
-    top: 3px;
-    color: #fff;
-    text-shadow: 0px 0px 20px rgb(250,250,250);
+  box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
+        0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
+        inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */
+        inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
+  background-color: rgb(83,87,93);
+  top: 3px;
+  color: #fff;
+  text-shadow: 0px 0px 20px rgb(250,250,250);
 }
 
 .button a:active:before, .button a.on:before {
@@ -130,8 +131,13 @@
     -webkit-transition: background-color 350ms, box-shadow 700ms;
 }
 
-
-
+/*
+  <div class="button">
+      <div class="btn_label">Wemo light</div>
+      <a rel="external" id="button">&#xF011;</a>
+      <span></span>
+  </div>
+*/
 
 
 
@@ -148,19 +154,16 @@
 
 
 .button2 {
-  float: left;
-    -webkit-touch-callout: none; /* iOS Safari */
-      -webkit-user-select: none; /* Chrome/Safari/Opera */
-       -khtml-user-select: none; /* Konqueror */
-         -moz-user-select: none; /* Firefox */
-          -ms-user-select: none; /* Internet Explorer/Edge */
-              user-select: none;
+  width: 150px;
+  margin-bottom: 25px;
+  display: inline-block;
 }
 
 .btn_label {
   color: white;
   font-size: 1.5em;
   margin: 5px;
+  text-align: center;
 }
 
 .button2 a {
@@ -210,24 +213,24 @@
 }
 
 .button2 a:active {
-    box-shadow: 0px 0px 0px 0px rgb(34,34,34),
-    			0px 3px 7px 0px rgb(17,17,17),
-    			inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
-    			inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
-    background-color: rgb(83,87,93);
-  	top: 3px;
-  	color: white;
+  box-shadow: 0px 0px 0px 0px rgb(34,34,34),
+        0px 3px 7px 0px rgb(17,17,17),
+        inset 0px 1px 1px 0px rgba(250, 250, 250, .2),
+        inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
+  background-color: rgb(83,87,93);
+  top: 3px;
+  color: white;
 }
 
 .button2 a.on {
-    box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
-          0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
-          inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */
-          inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
-    background-color: rgb(83,87,93);
-    top: 3px;
-    color: #1d9e00;
-    text-shadow: 0px 0px 6px rgb(39,255,0);
+  box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
+        0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
+        inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */
+        inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
+  background-color: rgb(83,87,93);
+  top: 3px;
+  color: #1d9e00;
+  text-shadow: 0px 0px 26px rgba(39,255,0, 0.5);
 }
 
 .button2 a:active:before, .button2 a.on:before {
@@ -237,3 +240,10 @@
   box-shadow: 0px 4px 0px 0px rgba(250,250,250,0.1),
               inset 0px 4px 6px rgba(0, 0, 0, 0.5);
 }
+
+/*
+  <div class="button2">
+      <div class="btn_label">Wemo light</div>
+      <a rel="external" id="button2">&#xF011;</a>
+  </div>
+*/

@@ -4,8 +4,6 @@ function init() {
   Menu.init();
   Switches.init();
   Systems.init();
-
-  btn_test();
 }
 
 function loadSwitches() {
@@ -20,6 +18,7 @@ function loadSwitches() {
   }, {disableAuth: true, loading: false})
 }
 
+/*
 function btn_test() {
   var button = document.getElementById('button')
   button.addEventListener('click', function(evt) {
@@ -32,4 +31,4 @@ function btn_test() {
       if (button2.classList.contains('on')) button2.classList.remove('on')
       else button2.classList.add('on')
       });
-}
+}*/

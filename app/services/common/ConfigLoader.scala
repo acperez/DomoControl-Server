@@ -29,9 +29,15 @@ class ConfigLoader @Inject()(cache: CacheApi, reactiveMongoApi: ReactiveMongoApi
 
       Try(Await.result(load(id), Duration.apply(500, "seconds"))) match {
         case Success(result) =>
-          updateOrSave(defaultConf)
-          cache.set(s"conf-$id", defaultConf)
-          defaultConf
+
+          val conf = if (result.isEmpty) {
+            updateOrSave(defaultConf)
+            defaultConf
+          } else result.get
+
+          cache.set(s"conf-$id", conf)
+          conf
+
         case Failure(e) =>
           Logger.error(s"Database error: ${e.getMessage}")
           defaultConf
