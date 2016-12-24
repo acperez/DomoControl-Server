@@ -1,21 +1,16 @@
-package services.wemo
+package services.wemo.ssdp
 
 import java.io.{InputStream, OutputStream}
 import java.net.{HttpURLConnection, URL}
 
 import play.api.Logger
-import services.wemo.ssdp.{SSDPPacket, WemoHTTPMsg}
 
 import scala.io.Source.fromInputStream
 import scala.util.{Failure, Success, Try}
 
-case class Device(baseUrl: URL, deviceType: String, name: Option[String], description: Option[String]) {
+case class Device(id: String, baseUrl: URL, deviceType: String) {
 
   val CONNECTION_RETRIES: Int = 3
-
-  def setName(name: String) = this.copy(name = Some(name))
-
-  def setDescription(description: String) = this.copy(description = Some(description))
 
   def validType(): Boolean = deviceType.equalsIgnoreCase("urn:Belkin:device:socket:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:sensor:1") ||
@@ -23,8 +18,6 @@ case class Device(baseUrl: URL, deviceType: String, name: Option[String], descri
     deviceType.equalsIgnoreCase("urn:Belkin:device:controllee:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:NetCamSensor:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:insight:1")
-
-
 
   def getState(retries: Int = CONNECTION_RETRIES): Boolean = {
     if (retries < 0) throw new Exception("Max number of retries to getState of Wemo")
@@ -59,7 +52,6 @@ case class Device(baseUrl: URL, deviceType: String, name: Option[String], descri
 
     val is: InputStream = connection.getInputStream
     val response: String = fromInputStream(is).mkString
-    //val response: String = readStream(is)
     is.close()
     connection.disconnect()
     parseGetBinaryState(response)
@@ -100,22 +92,6 @@ case class Device(baseUrl: URL, deviceType: String, name: Option[String], descri
     connection.disconnect()
   }
 
-  //private def readStream(is: InputStream): String = fromInputStream(is).mkString
-  /*private def readStream(is: InputStream): String = {
-    var ch: Int = 0
-    val sb: StringBuilder = new StringBuilder
-    try
-        while ((ch = is.read) != -1) sb.append(ch.toChar)
-
-    catch {
-      case e: IOException => {
-        e.printStackTrace()
-      }
-    }
-
-    return sb.toString
-  }*/
-
   private def parseGetBinaryState(response: String): Boolean = {
     val field: String = "<BinaryState>"
     if (response.contains(field)) {
@@ -123,27 +99,4 @@ case class Device(baseUrl: URL, deviceType: String, name: Option[String], descri
       "1" == response.substring(pos, pos + 1)
     } else throw new Exception("Invalid response for GetBinaryState")
   }
-}
-
-object Device {
-
-  def apply(packet: SSDPPacket, deviceStr: String): Device = {
-    val tagStart: String = "<deviceType>"
-    val tagEnd: String = "</deviceType>"
-
-    val posStart: Int = deviceStr.indexOf(tagStart)
-    val posEnd = deviceStr.indexOf(tagEnd)
-
-    if (posStart == -1 || posEnd == -1) null
-    else {
-      val deviceType: String = deviceStr.substring(posStart + tagStart.length(), posEnd)
-
-      val rawUrl: URL = new URL(packet.location)
-      val url: URL = new URL(rawUrl.getProtocol, rawUrl.getHost, rawUrl.getPort, "")
-      val device: Device = new Device(url, deviceType, None, None)
-      if (device.validType()) device
-      else null
-    }
-  }
-
 }

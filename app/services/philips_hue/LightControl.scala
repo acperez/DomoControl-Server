@@ -69,7 +69,7 @@ object LightControl {
     else {
       val lights = bridge.getResourceCache.getAllLights.asScala
       lights.map { light =>
-        val id = light.getIdentifier.toInt
+        val id = light.getIdentifier
         val status = light.getLastKnownLightState.isOn
         val name = light.getName
 
@@ -78,22 +78,22 @@ object LightControl {
     }
   }
 
-  def getLightStatus(id: Int): Boolean = {
+  def getLightStatus(id: String): Boolean = {
     val bridge = phHueSDK.getSelectedBridge
     if (bridge == null) throw new Exception("Philips Hue bridge not available")
     else {
       val lights = bridge.getResourceCache.getLights.asScala
-      lights.getOrElse(id.toString, throw new Exception("Invalid light id"))
+      lights.getOrElse(id, throw new Exception("Invalid light id"))
         .getLastKnownLightState
         .isOn
     }
   }
 
-  def setLightStatus(id: Int, status: Boolean) = {
+  def setLightStatus(id: String, status: Boolean) = {
     val bridge = phHueSDK.getSelectedBridge
     if (bridge == null) throw new Exception("Philips Hue bridge not available")
     else {
-      bridge.updateLightState(id.toString, LightUtils.createSwitchState(status), new PHLightListener {
+      bridge.updateLightState(id, LightUtils.createSwitchState(status), new PHLightListener {
         override def onReceivingLights(list: util.List[PHBridgeResource]): Unit = {}
 
         override def onSearchComplete(): Unit = {}
@@ -115,11 +115,11 @@ object LightControl {
     }
   }
 
-  def setLightColor(id: Int, color: Seq[Float]) = {
+  def setLightColor(id: String, color: Seq[Float]) = {
     val bridge = phHueSDK.getSelectedBridge
     if (bridge == null) throw new Exception("Philips Hue bridge not available")
     else {
-      bridge.updateLightState(id.toString, LightUtils.createColorState(color), new PHLightListener {
+      bridge.updateLightState(id, LightUtils.createColorState(color), new PHLightListener {
         override def onReceivingLights(list: util.List[PHBridgeResource]): Unit = {}
 
         override def onSearchComplete(): Unit = {}

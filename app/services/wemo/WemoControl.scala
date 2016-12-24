@@ -7,55 +7,45 @@ import services.wemo.ssdp.SSDPFinder
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object WemoControl {
 
-  def isConnected(wemoConfig: WemoConf): Boolean = {
-    wemoConfig.device match {
-      case None => false
-      case Some(device) => true
+  def isConnected(wemoConfig: WemoConf): Boolean =
+    wemoConfig.devices.nonEmpty
+
+  def connect(wemoService: WemoService): Unit = {
+    val searchRequest: Future[Seq[WemoDevice]] = SSDPFinder.request(wemoService)
+    searchRequest.onComplete{
+      case Success(device) =>
+        wemoService.setServiceConf(
+          WemoConf((wemoService.getServiceConf.devices ++ device).distinct)
+        )
+
+      case Failure(error) =>
+        Logger.warn(s"Failed to connect to WemoDevice: ${error.getMessage}")
     }
   }
 
-
-  def connect(wemoConfig: WemoConf, wemoService: WemoService): Unit = {
-    if (wemoConfig.device.isEmpty) {
-      val searchRequest: Future[Device] = SSDPFinder.request()
-      searchRequest.onComplete{
-        case Success(device) =>
-          wemoService.setServiceConf(
-            WemoConf(device.description, Some(device.baseUrl.toString), Some(device.deviceType), device.name)
-          )
-
-        case Failure(error) =>
-          Logger.error(s"Failed to connect to WemoDevice: ${error.getMessage}")
-      }
-    }
-  }
-
-  def setSwitchStatus(wemoConfig: WemoConf, id: Int, status: Boolean): Unit = {
-    wemoConfig.device match {
-      case None => throw new Exception("No wemo device available")
+  def setSwitchStatus(wemoConfig: WemoConf, id: String, status: Boolean): Unit = {
+    wemoConfig.devices.find(_.serial == id) match {
+      case None => throw new Exception(s"No wemo device with id $id available")
       case Some(device) =>
         device.setState(status)
     }
   }
 
-  def getSwitchStatus(wemoConfig: WemoConf, id: Int): Boolean = {
-    wemoConfig.device match {
-      case None => throw new Exception("No wemo device available")
+  def getSwitchStatus(wemoConfig: WemoConf, id: String): Boolean = {
+    wemoConfig.devices.find(_.serial == id) match {
+      case None => throw new Exception(s"No wemo device with $id available")
       case Some(device) =>
-        device.getState()
+        device.getState
     }
   }
 
   def getDevices(wemoConfig: WemoConf): Seq[DomoSwitch] = {
-    wemoConfig.device match {
-      case None => Seq()
-      case Some(device) =>
-        Seq(DomoSwitch(WemoService.serviceId, 0, device.getState(), device.name.getOrElse("WemoDevice")))
+    wemoConfig.devices.map{ device =>
+      DomoSwitch(WemoService.serviceId, device.serial, device.getState, device.name)
     }
   }
 }

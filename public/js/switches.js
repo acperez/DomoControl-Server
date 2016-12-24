@@ -41,14 +41,11 @@ var Switches = (function() {
     var itemWidth = listDiv.childNodes[1].offsetWidth;
     var containerWidth = containerDiv.offsetWidth;
     listDiv.style.width = parseInt(containerWidth / itemWidth) * itemWidth + 'px';
-    console.log('hia')
   }
 
   function renderSwitch(domoSwitch) {
     var main = document.createElement('div');
     main.classList.add('button2');
-
-    if (domoSwitch.status) main.classList.add('on');
 
     var label = document.createElement('div');
     label.classList.add('btn_label');
@@ -59,6 +56,8 @@ var Switches = (function() {
     var img = document.createTextNode('\uF011');
     icon.appendChild(img);
     addSwitchEvent(domoSwitch, icon);
+
+    if (domoSwitch.status) icon.classList.add('on');
 
     main.appendChild(label);
     main.appendChild(icon);

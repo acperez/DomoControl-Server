@@ -7,8 +7,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import services.common.DomoServices
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext
 
 /**
  * This controller creates an `Action` that demonstrates how to write
@@ -106,27 +105,27 @@ class DomoController @Inject()(actorSystem: ActorSystem, domoServices: DomoServi
     }
   }
 
-  def getSwitch(id: Int, switch: Int) = Action {
+  def getSwitch(id: Int, switchId: String) = Action {
     domoServices.services.get(id) match {
       case None => NotFound
-      case Some(serviceContainer) => Ok(serviceContainer.service.getSwitch(switch))
+      case Some(serviceContainer) => Ok(serviceContainer.service.getSwitch(switchId))
     }
   }
 
-  def setSwitchStatus(id: Int, switch: Int, status: Int) = Action {
+  def setSwitchStatus(id: Int, switchId: String, status: Int) = Action {
     domoServices.services.get(id) match {
       case None => NotFound
       case Some(serviceContainer) =>
-        serviceContainer.service.setSwitchStatus(switch, status > 0)
+        serviceContainer.service.setSwitchStatus(switchId, status > 0)
         Ok("ok")
     }
   }
 
-  def setSwitchExtra(id: Int, switch: Int, data: Long) = Action {
+  def setSwitchExtra(id: Int, switchId: String, data: Long) = Action {
     domoServices.services.get(id) match {
       case None => NotFound
       case Some(serviceContainer) =>
-        serviceContainer.service.setSwitchExtra(switch, data)
+        serviceContainer.service.setSwitchExtra(switchId, data)
         Ok("ok")
     }
   }
