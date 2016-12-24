@@ -17,9 +17,9 @@ trait DomoService {
   def getConnectionStatus: JsValue
 
   def getSwitches: JsValue
-  def getSwitch(id: Int): JsValue
+  def getSwitch(id: String): JsValue
   def setSwitchesStatus(status: Boolean): Unit
-  def setSwitchStatus(id: Int, status: Boolean): Unit
+  def setSwitchStatus(id: String, status: Boolean): Unit
   def setSwitchesExtra(status: Long): Unit
-  def setSwitchExtra(id: Int, status: Long): Unit
+  def setSwitchExtra(id: String, status: Long): Unit
 }

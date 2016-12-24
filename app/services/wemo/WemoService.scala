@@ -28,7 +28,7 @@ class WemoService @Inject() (
     Logger.info(f"Stop $serviceName service")
   }
 
-  def getServiceConf: WemoConf = configLoader.getConfig(WemoConf(None, None, None, None))
+  def getServiceConf: WemoConf = configLoader.getConfig(WemoConf(Seq()))
 
   override def getConf = Json.toJson(getServiceConf)
 
@@ -38,7 +38,7 @@ class WemoService @Inject() (
 
   override def connected: Boolean = WemoControl.isConnected(getServiceConf)
 
-  override def connect() = WemoControl.connect(getServiceConf, this)
+  override def connect() = WemoControl.connect(this)
 
   override def disconnect() = {}
 
@@ -46,19 +46,23 @@ class WemoService @Inject() (
 
   override def getSwitches: JsValue = Json.toJson(getWemoDevices)
 
-  def getWemoStatus(id: Int) = WemoControl.getSwitchStatus(getServiceConf, id)
+  def getWemoStatus(id: String) = WemoControl.getSwitchStatus(getServiceConf, id)
 
-  override def getSwitch(id: Int): JsValue = Json.toJson(getWemoStatus(id))
+  override def getSwitch(id: String): JsValue = Json.toJson(getWemoStatus(id))
 
-  override def setSwitchStatus(id: Int, status: Boolean): Unit = WemoControl.setSwitchStatus(getServiceConf, id, status)
+  override def setSwitchStatus(id: String, status: Boolean): Unit = WemoControl.setSwitchStatus(getServiceConf, id, status)
 
   override def getConnectionStatus: JsValue = Json.toJson(connected)
 
-  override def setSwitchesStatus(status: Boolean): Unit = WemoControl.setSwitchStatus(getServiceConf, 0, status)
+  override def setSwitchesStatus(status: Boolean): Unit = {
+    getServiceConf.devices.foreach { device =>
+      WemoControl.setSwitchStatus(getServiceConf, device.serial, status)
+    }
+  }
 
   override def setSwitchesExtra(status: Long): Unit = {}
 
-  override def setSwitchExtra(id: Int, status: Long): Unit = {}
+  override def setSwitchExtra(id: String, status: Long): Unit = {}
 }
 
 object WemoService {

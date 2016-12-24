@@ -55,21 +55,21 @@ class LightService @Inject() (
 
   def getLights = LightControl.getLights
 
-  def getLightStatus(id: Int) = LightControl.getLightStatus(id)
+  def getLightStatus(id: String) = LightControl.getLightStatus(id)
 
   override def getSwitches = Json.toJson(getLights)
 
-  override def getSwitch(id: Int): JsValue = Json.toJson(getLightStatus(id))
+  override def getSwitch(id: String): JsValue = Json.toJson(getLightStatus(id))
 
   override def setSwitchesStatus(status: Boolean) = getLights.foreach( light => LightControl.setLightStatus(light.id, status))
 
-  override def setSwitchesExtra(data: Long) = getLights.foreach( light => setLightColor(4, data))
+  override def setSwitchesExtra(data: Long) = getLights.foreach( light => setLightColor("4", data))
 
-  override def setSwitchStatus(id: Int, status: Boolean) = LightControl.setLightStatus(id, status)
+  override def setSwitchStatus(id: String, status: Boolean) = LightControl.setLightStatus(id, status)
 
-  override def setSwitchExtra(id: Int, data: Long) = setLightColor(4, data)
+  override def setSwitchExtra(id: String, data: Long) = setLightColor(id, data)
 
-  def setLightColor(id: Int, color: Long) = {
+  def setLightColor(id: String, color: Long) = {
     val r = (color >> 16).toInt
     val g = ((color >> 8) & 255).toInt
     val b = (color & 255).toInt

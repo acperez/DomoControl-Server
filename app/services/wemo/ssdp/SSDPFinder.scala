@@ -2,15 +2,16 @@ package services.wemo.ssdp
 
 import java.io.InputStream
 import java.net._
+import java.util.concurrent.Executors
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
-import services.wemo.Device
+import services.wemo.{WemoDevice, WemoService}
 
 import collection.JavaConverters._
-import scala.concurrent.{Future, Promise}
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.io.Source._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object SSDPFinder {
   val PORT: Int = 8008
@@ -19,9 +20,12 @@ object SSDPFinder {
 
   lazy val address: InetAddress = getHostAddress
 
-  def request(): Future[Device] = {
+  val pool = Executors.newFixedThreadPool(1)
+  implicit val ec = ExecutionContext.fromExecutorService(pool)
 
-    val promise = Promise[Device]
+  def request(wemoService: WemoService): Future[Seq[WemoDevice]] = {
+
+    val promise = Promise[Seq[WemoDevice]]
 
     Future {
 
@@ -46,29 +50,26 @@ object SSDPFinder {
         val data: Array[Byte] = new Array[Byte](1024)
         val responsePacket: DatagramPacket = new DatagramPacket(data, 1024)
 
-        var run: Boolean = true
-        while (run) {
+        val devices: ListBuffer[WemoDevice] = ListBuffer.empty[WemoDevice]
+
+        while ((DateTime.now(DateTimeZone.UTC).getMillis - startTime) < TIMEOUT) {
           try {
             socket.receive(responsePacket)
           } catch {
-            case e: Exception => Logger.error(s"Error while waiting for SSDP responses: ${e.getMessage}")
+            case e: Exception => //Logger.error(s"Error while waiting for SSDP responses: ${e.getMessage}")
           }
 
-          val currentTime: Long = DateTime.now(DateTimeZone.UTC).getMillis
-          if ((currentTime - startTime) > TIMEOUT) {
-            promise.failure(new Exception("Timeout when discovering SSDP devices"))
-            run = false
-          } else {
-            if (SSDPPacket.validatePacket(responsePacket)) {
-              getDevice(SSDPPacket(responsePacket)) match {
-                case Some(device) => promise.success(device)
-                case None => Logger.warn("SSDPFinder: not valid device")
-              }
-
-              run = false
+          if (SSDPPacket.validatePacket(responsePacket)) {
+            getDevice(SSDPPacket(responsePacket)) match {
+              case Some(rawDevice) =>
+                val device = WemoDevice(rawDevice.id, rawDevice.baseUrl.toString, rawDevice.deviceType)
+                if (!wemoService.getServiceConf.devices.contains(device)) devices += device
+              case None => //Logger.warn("SSDPFinder: not valid device")
             }
           }
         }
+
+        promise.success(devices.toList)
       } catch {
         case e: Exception => promise.failure(e)
       } finally {
@@ -109,7 +110,7 @@ object SSDPFinder {
         if (posStart == -1 || posEnd == -1) None
         else {
           val deviceType: String = deviceInfo.substring(posStart + tagStart.length, posEnd)
-          val device: Device = Device(deviceUrl, deviceType, None, None)
+          val device: Device = Device(packet.serialNumber, deviceUrl, deviceType)
 
           if (device.validType()) Some(device)
           else None
