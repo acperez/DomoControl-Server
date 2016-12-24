@@ -24,7 +24,7 @@ class LightService @Inject() (
     Logger.info("Init Philips Hue service")
     val conf = getConf
     Logger.info("Lights config: " + conf)
-    //connect()
+    connect()
   }
 
   override def stop(): Unit = {
