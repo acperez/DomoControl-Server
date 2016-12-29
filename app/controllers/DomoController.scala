@@ -3,9 +3,11 @@ package controllers
 import akka.actor.ActorSystem
 import javax.inject._
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc._
 import services.common.DomoServices
+import services.philips_hue.LightService
+import views.js
 
 import scala.concurrent.ExecutionContext
 
@@ -130,7 +132,51 @@ class DomoController @Inject()(actorSystem: ActorSystem, domoServices: DomoServi
     }
   }
 
+  def setSwitchesExtraPost(id: Int) = Action { request =>
+    domoServices.services.get(id) match {
+      case None => NotFound
+      case Some(serviceContainer) =>
+        request.body.asJson match {
+          case None =>
+            BadRequest("Expecting Json data")
+          case Some(json) =>
+            serviceContainer.service.setSwitchesExtraPost(json)
+            Ok("ok")
+        }
+    }
+  }
 
+  def setSwitchExtraPost(id: Int, switchId: String) = Action { request =>
+    domoServices.services.get(id) match {
+      case None => NotFound
+      case Some(serviceContainer) =>
+        request.body.asJson match {
+          case None =>
+            BadRequest("Expecting Json data")
+          case Some(json) =>
+            serviceContainer.service.setSwitchExtraPost(switchId, json)
+            Ok("ok")
+        }
+    }
+  }
+
+  def getDomoControlData = Action {
+    val services = domoServices.services
+    val systemObjects =
+      services.map{ case (id, serviceContainer) =>
+        val data = Json.obj(
+          "name" -> serviceContainer.name,
+          "switches" -> serviceContainer.service.getSwitches
+        )
+
+        id.toString -> data
+      }
+
+    val systems = JsObject(systemObjects)
+    val scenes = domoServices.lightScenes.as[JsArray]
+
+    Ok(views.js.domoControlData.render(systems, scenes)).as("text/javascript utf-8")
+  }
 
   /**
    * Create an Action that returns a plain text message after a delay

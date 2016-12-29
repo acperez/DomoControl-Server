@@ -22,4 +22,6 @@ trait DomoService {
   def setSwitchStatus(id: String, status: Boolean): Unit
   def setSwitchesExtra(status: Long): Unit
   def setSwitchExtra(id: String, status: Long): Unit
+  def setSwitchesExtraPost(data: JsValue): Unit
+  def setSwitchExtraPost(id: String, data: JsValue): Unit
 }

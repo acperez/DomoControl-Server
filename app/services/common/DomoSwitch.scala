@@ -17,5 +17,5 @@ case class DomoSwitch(
 )  extends DomoSwitchBase
 
 object DomoSwitch {
-  implicit val personFormat = Json.format[DomoSwitch]
+  implicit val domoSwitchFormat = Json.format[DomoSwitch]
 }

@@ -18,9 +18,13 @@ GET     /system/:id/switch/:switchId              controllers.DomoController.get
 
 GET     /system/:id/switches/:status              controllers.DomoController.setSwitchesStatus(id: Int, status: Int)
 GET     /system/:id/switches/extra/:data          controllers.DomoController.setSwitchesExtra(id: Int, data: Long)
+POST    /system/:id/switches/extra/               controllers.DomoController.setSwitchesExtraPost(id: Int)
+
 GET     /system/:id/switch/:switchId/:status      controllers.DomoController.setSwitchStatus(id: Int, switchId: String, status: Int)
 GET     /system/:id/switch/:switchId/extra/:data  controllers.DomoController.setSwitchExtra(id: Int, switchId: String, data: Int)
+POST    /system/:id/switch/:switchId/extra/       controllers.DomoController.setSwitchExtraPost(id: Int, switchId: String)
 
+GET     /js/domocontrol_data.js                   controllers.DomoController.getDomoControlData()
 
 GET  /                      controllers.Default.redirect(to = "index.html")
 GET  /*file                 controllers.Assets.at(path="/public", file)

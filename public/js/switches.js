@@ -10,10 +10,12 @@ var Switches = (function() {
     listDiv = document.getElementById('switches_items');
 
     window.addEventListener('resize', function(evt) { setContainerWidth(); });
+
+    showSwitches()
   }
 
   function showSwitches() {
-    var switches = Systems.switches();
+    var switches = DomoData.switches();
     if (switches.length == 0) {
       emptyMsgDiv.style.display = 'flex';
       listDiv.style.display = 'none';
@@ -25,13 +27,12 @@ var Switches = (function() {
 
     // Show items
     switches.forEach(function(domoSwitch) {
-      console.log(JSON.stringify(domoSwitch));
       var element = renderSwitch(domoSwitch);
       listDiv.appendChild(element);
     });
 
     var clear = document.createElement('div');
-    clear.style.clear = 'both';
+    clear.classList.add('clear');
     listDiv.appendChild(clear);
 
     setContainerWidth();
@@ -78,7 +79,6 @@ var Switches = (function() {
   }
 
   return {
-    init: init,
-    showSwitches: showSwitches
+    init: init
   };
 }());

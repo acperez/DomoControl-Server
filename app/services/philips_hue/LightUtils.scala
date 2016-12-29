@@ -2,7 +2,6 @@ package services.philips_hue
 
 import java.awt.Color
 
-import com.philips.lighting.hue.sdk.utilities.PHUtilities
 import com.philips.lighting.model.{PHLight, PHLightState}
 
 object LightUtils {
@@ -13,7 +12,12 @@ object LightUtils {
     state
   }
 
-  def createColorState(color: Seq[Float]): PHLightState = {
+  def createColorStateFromRGB(color: Seq[Int]): PHLightState = {
+    val colorHSV = rgbToHsv(color.head, color(1), color.last)
+    createColorStateFromHSV(colorHSV)
+  }
+
+  def createColorStateFromHSV(color: Seq[Float]): PHLightState = {
     val state = new PHLightState()
     state.setOn(true)
 
@@ -21,10 +25,10 @@ object LightUtils {
     state.setSaturation((color(1) * 254).toInt)
     state.setBrightness((color(2) * 254).toInt)
 
-    val colorValue: Int = Color.HSBtoRGB(color.head, color(1), color(2))
-    val xy: Seq[Float] = PHUtilities.calculateXY(colorValue, "LCT001")
-    state.setX(xy(0))
-    state.setY(xy(1))
+    //val colorValue: Int = Color.HSBtoRGB(color.head, color(1), color(2))
+    //val xy: Seq[Float] = PHUtilities.calculateXY(colorValue, "LCT001")
+    //state.setX(xy(0))
+    //state.setY(xy(1))
 
     state
   }
@@ -97,4 +101,31 @@ object LightUtils {
   //	double a5 = 2.2227969787 * hue;
   //	return (int)(a1 + a2 + a3 + a4 + a5 - (4.75263561196466 * Math.pow(10, -11)));
   //}
+
+
+
+  def rgbToHsv(r: Float, g: Float, b: Float): Array[Float] = {
+    val min = Math.min(r, Math.min(g, b))
+    val max = Math.max(r, Math.max(g, b))
+    val delta = max - min
+
+    val v = max / 255
+
+    if (delta == 0) {
+      Array[Float](0, 0, v)
+    } else {
+      val s = delta / max
+
+      val rawH =
+        if (r == max) ((g - b) / delta) * 60
+        else if (g == max) (2 + ((b - r) / delta)) * 60
+        else (4 + ((r - g) / delta)) * 60
+
+      val h =
+        if (rawH < 0) rawH + 360
+        else rawH
+
+      Array[Float](h, s, v)
+    }
+  }
 }
