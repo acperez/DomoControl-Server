@@ -16,7 +16,7 @@ object WemoControl {
 
   def connect(wemoService: WemoService): Unit = {
     val searchRequest: Future[Seq[WemoDevice]] = SSDPFinder.request(wemoService)
-    searchRequest.onComplete{
+    searchRequest.onComplete {
       case Success(device) =>
         wemoService.setServiceConf(
           WemoConf((wemoService.getServiceConf.devices ++ device).distinct)

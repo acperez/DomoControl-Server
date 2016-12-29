@@ -26,4 +26,6 @@ class DomoServices @Inject()(
     lightService.serviceId -> DomoServiceContainer(lightService.serviceId, lightService.serviceName, lightService),
     wemoService.serviceId -> DomoServiceContainer(wemoService.serviceId, wemoService.serviceName, wemoService)
   )
+
+  def lightScenes = lightService.getScenes()
 }

@@ -63,6 +63,10 @@ class WemoService @Inject() (
   override def setSwitchesExtra(status: Long): Unit = {}
 
   override def setSwitchExtra(id: String, status: Long): Unit = {}
+
+  override def setSwitchesExtraPost(data: JsValue): Unit = ???
+
+  override def setSwitchExtraPost(id: String, data: JsValue): Unit = ???
 }
 
 object WemoService {

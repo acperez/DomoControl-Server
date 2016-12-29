@@ -115,11 +115,12 @@ object LightControl {
     }
   }
 
-  def setLightColor(id: String, color: Seq[Float]) = {
+  def setLightColor(id: String, color: Seq[Int]) = {
     val bridge = phHueSDK.getSelectedBridge
     if (bridge == null) throw new Exception("Philips Hue bridge not available")
     else {
-      bridge.updateLightState(id, LightUtils.createColorState(color), new PHLightListener {
+      //val lololo = LightUtils.createColorStateFromRGB(color)
+      bridge.updateLightState(id, LightUtils.createColorStateFromRGB(color), new PHLightListener {
         override def onReceivingLights(list: util.List[PHBridgeResource]): Unit = {}
 
         override def onSearchComplete(): Unit = {}

@@ -19,12 +19,14 @@
 
         <link rel="stylesheet" href="css/domocontrol.css">
         <link rel="stylesheet" href="css/switches.css">
+        <link rel="stylesheet" href="css/philips.css">
 
+        <script type="text/javascript" src="js/domocontrol_data.js"></script>
         <script type="text/javascript" src="js/http_client.js"></script>
         <script type="text/javascript" src="js/menu.js"></script>
         <script type="text/javascript" src="js/animations.js"></script>
-        <script type="text/javascript" src="js/systems.js"></script>
         <script type="text/javascript" src="js/switches.js"></script>
+        <script type="text/javascript" src="js/philips.js"></script>
         <script type="text/javascript" src="js/domocontrol.js"></script>
     </head>
 
@@ -63,19 +65,39 @@
         <div class="content_container">
             <div id="content_panel" class="content_panel">
 
-                <div id="switches">
-
+                <div id="switches" class="content content_on">
                     <div id="switches_empty">
                         There are no switches available
                     </div>
 
                     <div id="switches_container">
-
-
                         <div id="switches_items">
                         </div>
-
                     </div>
+                </div>
+
+                <div id="philips_hue" class="content">
+                    <div class="toggle">
+                        <div class="toggle_container">
+                            <input id="scenes_toggle" type="radio" name="philips_toggle" value="scenes" class="toggle_input" checked="">
+                            <label for="scenes_toggle" class="toggle_label toggle_left">Scenes</label
+                            ><input id="lights_toggle" type="radio" name="philips_toggle" value="lights" class="toggle_input"
+                            ><label for="lights_toggle" class="toggle_label toggle_right">Lights</label>
+                        </div>
+                    </div>
+                    <div id="scenes_panel">
+                        <div id="scenes"></div>
+                        <div class="scenes_btn_container">
+                            <a id="scene_btn_on" class="btn scene_btn">On</a>
+                            <a id="scene_btn_off" class="btn scene_btn">Off</a>
+                        </div>
+                    </div>
+                    <div id="color_picker">
+                    </div>
+                </div>
+
+                <div id="fake" class="content">
+                    fake
                 </div>
 
             </div>

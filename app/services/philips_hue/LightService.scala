@@ -4,14 +4,16 @@ import java.awt.Color
 import javax.inject.{Inject, Singleton}
 
 import models.config.PhilipsConf
-import services.common.{ConfigLoader, DomoService}
-import play.api.Logger
+import services.common.{ConfigLoader, DomoService, DomoSwitch, SceneManager}
+import play.api.{Environment, Logger}
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.json.{JsValue, Json}
 
 @Singleton
 class LightService @Inject() (
   configLoader: ConfigLoader,
+  sceneManager: SceneManager,
+  env: Environment,
   appLifecycle: ApplicationLifecycle) extends DomoService {
 
   val lightListener = LightListener(this)
@@ -22,6 +24,7 @@ class LightService @Inject() (
 
   override def init(): Unit = {
     Logger.info("Init Philips Hue service")
+    sceneManager.bootstrap()
     val conf = getConf
     Logger.info("Lights config: " + conf)
     connect()
@@ -74,8 +77,38 @@ class LightService @Inject() (
     val g = ((color >> 8) & 255).toInt
     val b = (color & 255).toInt
     val rgb = Color.RGBtoHSB(r, g, b, null)
-    LightControl.setLightColor(id, rgb)
+    //LightControl.setLightColor(id, rgb)
   }
+
+  override def setSwitchesExtraPost(data: JsValue): Unit = {
+    val sceneId = (data \ "sceneId").as[Int]
+
+    sceneManager.get(sceneId) match {
+      case None =>
+        Logger.warn(s"No scene with id $sceneId")
+
+      case Some(scene) =>
+        val colors = scene.colors.map { colorStr =>
+          val colorRGB = Color.decode(colorStr)
+          Array(colorRGB.getRed, colorRGB.getGreen, colorRGB.getBlue)
+        }
+
+        val lights = getLights
+        val actions =
+          if (colors.size > lights.size) lights.zip(colors)
+          else lights.zip(Stream.continually(colors).flatten)
+
+        actions.foreach { case (light: DomoSwitch, color: Array[Int]) =>
+          LightControl.setLightColor(light.id, color)
+        }
+    }
+  }
+
+  def getScenes(): JsValue = {
+    Json.toJson(sceneManager.getAll())
+  }
+
+  override def setSwitchExtraPost(id: String, data: JsValue): Unit = ???
 }
 
 object LightService {
