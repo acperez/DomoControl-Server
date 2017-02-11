@@ -4,21 +4,24 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, OWrites, Reads}
 
 case class PhilipsScene(
-  id: Int,
   name: String,
-  colors: Seq[String])
+  lights: Seq[String],
+  colors: Seq[String],
+  default: Boolean)
 
 object PhilipsScene {
 
   implicit val reads: Reads[PhilipsScene] = (
-    (JsPath \ "id").read[Int] and
     (JsPath \ "name").read[String] and
-    (JsPath \ "colors").read[Seq[String]]
-  )((id, name, colors) => PhilipsScene.apply(id, name, colors))
+    (JsPath \ "lights").read[Seq[String]] and
+    (JsPath \ "colors").read[Seq[String]] and
+    (JsPath \ "default").read[Boolean]
+  )((name, lights, colors, default) => PhilipsScene.apply(name, lights, colors, default))
 
   implicit val writes: OWrites[PhilipsScene] = (
-    (JsPath \ "id").write[Int] and
     (JsPath \ "name").write[String] and
-    (JsPath \ "colors").write[Seq[String]]
-  )(unlift(PhilipsScene.unapply))
+    (JsPath \ "lights").write[Seq[String]] and
+    (JsPath \ "colors").write[Seq[String]] and
+    (JsPath \ "default").write[Boolean]
+  )(scene => (scene.name.toLowerCase(), scene.lights, scene.colors, scene.default))
 }

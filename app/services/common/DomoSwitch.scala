@@ -7,13 +7,15 @@ trait DomoSwitchBase {
   def id: String
   def status: Boolean
   def name: String
+  def available: Boolean
 }
 
 case class DomoSwitch(
   serviceId: Int,
   id: String,
   status: Boolean,
-  name: String
+  name: String,
+  available: Boolean
 )  extends DomoSwitchBase
 
 object DomoSwitch {

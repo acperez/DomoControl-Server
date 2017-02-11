@@ -3,14 +3,13 @@ package services.common
 import javax.inject.{Inject, Singleton}
 
 import models.config.PhilipsScene
-import net.sf.ehcache.Ehcache
-import play.api.{Environment, Logger, Play}
+import play.api.{Environment, Logger}
 import play.api.cache.CacheApi
 import play.api.libs.json._
-import play.api.Play.current
 import play.modules.reactivemongo.ReactiveMongoApi
 import play.modules.reactivemongo.json._
 import reactivemongo.api.Cursor
+import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.play.json.collection.JSONCollection
 
@@ -19,19 +18,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source._
 import scala.util.{Failure, Success}
 
-
 @Singleton
 class SceneManager @Inject()(cache: CacheApi, env: Environment, reactiveMongoApi: ReactiveMongoApi) {
 
-  def collection = reactiveMongoApi.database.map(_.collection[JSONCollection]("scenes"))
-
-  collection.map(_.indexesManager.ensure(Index(Seq("id" -> IndexType.Ascending), unique = true)))
+  def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("scenes"))
+  collection.map(_.indexesManager.ensure(Index(Seq("name" -> IndexType.Text), unique = true)))
 
   def bootstrap(): Unit = {
     load().onComplete {
       case Success(result) =>
         val scenes = (if (result.isEmpty) populateScenes() else result)
-          .map(scene => (scene.id -> scene)).toMap
+          .map(scene => scene.name -> scene).toMap
         cache.set(s"scenes", scenes)
 
       case Failure(error) =>
@@ -69,17 +66,40 @@ class SceneManager @Inject()(cache: CacheApi, env: Environment, reactiveMongoApi
         .collect[Seq](Int.MaxValue, Cursor.FailOnError[Seq[PhilipsScene]]()))
   }
 
-  def get(index: Int): Option[PhilipsScene] = {
-    cache.getOrElse[Map[Int, PhilipsScene]]("scenes")(Map()).get(index)
+  def get(index: String): Option[PhilipsScene] = {
+    cache.getOrElse[Map[String, PhilipsScene]]("scenes")(Map()).get(index)
   }
 
-  def getAll(): Seq[PhilipsScene] = {
+  def getAll: Seq[PhilipsScene] = {
     cache
-      .getOrElse[Map[Int, PhilipsScene]]("scenes")(Map())
+      .getOrElse[Map[String, PhilipsScene]]("scenes")(Map())
       .values
       .toSeq
-      .sortBy(_.id)
+      .sortBy(scene => (!scene.default, scene.name))
   }
+
+  def save(scene: PhilipsScene)(implicit ec: ExecutionContext, writes: OWrites[PhilipsScene]): Future[WriteResult] = {
+    collection
+      .flatMap( x =>
+        x.insert(scene)
+      )
+  }
+
+  def addToCache(scene: PhilipsScene): Unit = {
+    val scenes = cache.getOrElse[Map[String, PhilipsScene]]("scenes")(Map()) + (scene.name -> scene)
+    cache.set("scenes", scenes)
+  }
+
+  def remove(sceneId: String)(implicit ec: ExecutionContext, reads: Reads[PhilipsScene]): Future[Option[PhilipsScene]] = {
+    collection.flatMap(_.findAndRemove(Json.obj("name" -> sceneId))
+      .map(_.result[PhilipsScene]))
+  }
+
+  def removeFromCache(scene: PhilipsScene): Unit = {
+    val scenes = cache.getOrElse[Map[String, PhilipsScene]]("scenes")(Map()) - scene.name
+    cache.set("scenes", scenes)
+  }
+
   /*
   def count()(implicit ec: ExecutionContext): Future[Int] = {
     collection

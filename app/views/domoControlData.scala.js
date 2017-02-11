@@ -17,9 +17,14 @@ var DomoData = (function() {
     return switches;
   }
 
+  function getSwitchesBySystem(systemId) {
+    return systems[systemId].switches;
+  }
+
   return {
     systems: systems,
     scenes: scenes,
-    switches: getSwitches
+    switches: getSwitches,
+    switchesBySystem: getSwitchesBySystem
   };
 }());

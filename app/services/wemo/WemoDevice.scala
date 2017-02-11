@@ -11,13 +11,16 @@ case class WemoDevice(
   name: String,
   description: String,
   url: String,
-  deviceType: String) {
+  deviceType: String,
+  failedConnections: Int) {
+
+  val CONNECTION_RETRIES: Int = 0
 
   lazy private val device = Device(serial, new URL(url), deviceType)
 
-  def setState(state: Boolean) = device.setState(state)
+  def setState(state: Boolean, retries: Int = CONNECTION_RETRIES) = device.setState(state, retries)
 
-  def getState: Boolean = device.getState()
+  def getState(retries: Int = CONNECTION_RETRIES): Option[Boolean] = device.getState(retries)
 
   override def equals(other: Any) = other match {
     case that: WemoDevice =>
@@ -29,8 +32,8 @@ case class WemoDevice(
 
 object WemoDevice {
 
-  def apply(id: String, url: String, deviceType: String) = {
-    new WemoDevice(id, id, id, url, deviceType)
+  def apply(id: String, url: String, deviceType: String, failedConnections: Int) = {
+    new WemoDevice(id, id, id, url, deviceType, failedConnections)
   }
 
   implicit val reads: Reads[WemoDevice] = (
@@ -38,14 +41,17 @@ object WemoDevice {
     (JsPath \ "name").read[String] and
     (JsPath \ "description").read[String] and
     (JsPath \ "url").read[String] and
-    (JsPath \ "deviceType").read[String]
-  )((serial, name, description, url, deviceType) => WemoDevice.apply(serial, name, description, url, deviceType))
+    (JsPath \ "deviceType").read[String] and
+    (JsPath \ "failedConnections").read[Int]
+  )((serial, name, description, url, deviceType, failedConnections) =>
+    WemoDevice.apply(serial, name, description, url, deviceType, failedConnections))
 
   implicit val writes: OWrites[WemoDevice] = (
     (JsPath \ "serial").write[String] and
     (JsPath \ "name").write[String] and
     (JsPath \ "description").write[String] and
     (JsPath \ "url").write[String] and
-    (JsPath \ "deviceType").write[String]
+    (JsPath \ "deviceType").write[String] and
+    (JsPath \ "failedConnections").write[Int]
   )(unlift(WemoDevice.unapply))
 }

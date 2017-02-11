@@ -8,6 +8,8 @@ import play.api.inject.ApplicationLifecycle
 import play.api.libs.json.{JsValue, Json}
 import services.common.{ConfigLoader, DomoService}
 
+import scala.concurrent.Future
+
 @Singleton
 class WemoService @Inject() (
   configLoader: ConfigLoader,
@@ -60,11 +62,11 @@ class WemoService @Inject() (
     }
   }
 
-  override def setSwitchesExtra(status: Long): Unit = {}
+  def setSwitchesExtra(switches: String, data: String): Future[Boolean] = ???
 
-  override def setSwitchExtra(id: String, status: Long): Unit = {}
+  override def setSwitchExtra(id: String, status: String): Future[Boolean] = ???
 
-  override def setSwitchesExtraPost(data: JsValue): Unit = ???
+  override def setSwitchesExtraPost(data: JsValue): Future[Int] = ???
 
   override def setSwitchExtraPost(id: String, data: JsValue): Unit = ???
 }

@@ -3,28 +3,28 @@
 # ~~~~
 
 # An example controller showing how to write asynchronous code
-GET     /systems                                  controllers.DomoController.systems
-GET     /systems/switches                         controllers.DomoController.getAllSwitches
+GET     /systems                                   controllers.DomoController.systems
+GET     /systems/switches                          controllers.DomoController.getAllSwitches
 
-GET     /system/:id/conf                          controllers.DomoController.getConf(id: Int)
-POST    /system/:id/conf                          controllers.DomoController.setConf(id: Int)
+GET     /system/:id/conf                           controllers.DomoController.getConf(id: Int)
+POST    /system/:id/conf                           controllers.DomoController.setConf(id: Int)
 
-GET     /system/:id/connection/status             controllers.DomoController.getConnectionStatus(id: Int)
-GET     /system/:id/connection/connect            controllers.DomoController.connect(id: Int)
-GET     /system/:id/connection/disconnect         controllers.DomoController.disconnect(id: Int)
+GET     /system/:id/connection/status              controllers.DomoController.getConnectionStatus(id: Int)
+GET     /system/:id/connection/connect             controllers.DomoController.connect(id: Int)
+GET     /system/:id/connection/disconnect          controllers.DomoController.disconnect(id: Int)
 
-GET     /system/:id/switches                      controllers.DomoController.getSwitches(id: Int)
-GET     /system/:id/switch/:switchId              controllers.DomoController.getSwitch(id: Int, switchId: String)
+GET     /system/:id/switches                       controllers.DomoController.getSwitches(id: Int)
+GET     /system/:id/switch/:switchId               controllers.DomoController.getSwitch(id: Int, switchId: String)
 
-GET     /system/:id/switches/:status              controllers.DomoController.setSwitchesStatus(id: Int, status: Int)
-GET     /system/:id/switches/extra/:data          controllers.DomoController.setSwitchesExtra(id: Int, data: Long)
-POST    /system/:id/switches/extra/               controllers.DomoController.setSwitchesExtraPost(id: Int)
+GET     /system/:id/switches/:status               controllers.DomoController.setSwitchesStatus(id: Int, status: Int)
+GET     /system/:id/switches/:switches/extra/:data controllers.DomoController.setSwitchesExtra(id: Int, switches: String, data: String)
+POST    /system/:id/switches/extra/                controllers.DomoController.setSwitchesExtraPost(id: Int)
 
-GET     /system/:id/switch/:switchId/:status      controllers.DomoController.setSwitchStatus(id: Int, switchId: String, status: Int)
-GET     /system/:id/switch/:switchId/extra/:data  controllers.DomoController.setSwitchExtra(id: Int, switchId: String, data: Int)
-POST    /system/:id/switch/:switchId/extra/       controllers.DomoController.setSwitchExtraPost(id: Int, switchId: String)
+GET     /system/:id/switch/:switchId/:status       controllers.DomoController.setSwitchStatus(id: Int, switchId: String, status: Int)
+GET     /system/:id/switch/:switchId/extra/:data   controllers.DomoController.setSwitchExtra(id: Int, switchId: String, data: String)
+POST    /system/:id/switch/:switchId/extra/        controllers.DomoController.setSwitchExtraPost(id: Int, switchId: String)
 
-GET     /js/domocontrol_data.js                   controllers.DomoController.getDomoControlData()
+GET     /js/domocontrol_data.js                    controllers.DomoController.getDomoControlData()
 
 GET  /                      controllers.Default.redirect(to = "index.html")
 GET  /*file                 controllers.Assets.at(path="/public", file)

@@ -17,9 +17,9 @@
         <meta charset="UTF-8">
         <title>DomoControl</title>
 
+        <link rel="stylesheet" href="css/philips.css">
         <link rel="stylesheet" href="css/domocontrol.css">
         <link rel="stylesheet" href="css/switches.css">
-        <link rel="stylesheet" href="css/philips.css">
 
         <script type="text/javascript" src="js/domocontrol_data.js"></script>
         <script type="text/javascript" src="js/http_client.js"></script>
@@ -27,6 +27,7 @@
         <script type="text/javascript" src="js/animations.js"></script>
         <script type="text/javascript" src="js/switches.js"></script>
         <script type="text/javascript" src="js/philips.js"></script>
+        <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/domocontrol.js"></script>
     </head>
 
@@ -85,14 +86,44 @@
                             ><label for="lights_toggle" class="toggle_label toggle_right">Lights</label>
                         </div>
                     </div>
+
                     <div id="scenes_panel">
                         <div id="scenes"></div>
                         <div class="scenes_btn_container">
-                            <a id="scene_btn_on" class="btn scene_btn">On</a>
-                            <a id="scene_btn_off" class="btn scene_btn">Off</a>
+                            <a id="scene_btn_edit" class="btn scene_btn">Edit</a>
                         </div>
                     </div>
-                    <div id="color_picker">
+                    <div id="color_picker_panel">
+                        <div id="light_list"></div>
+                        <div id="color_picker_container">
+                            <div id="color_picker">
+                                <div class="picker_bar">
+                                    <a id="hue_dec" class="button_pick button_pick_left">&#x25c0;</a>
+                                    <input id="hue_slider" type="range" class="slider hue_picker" min="0" max="360" step="1" value="0">
+                                    <a id="hue_inc" class="button_pick button_pick_right">&#x25b6;</a>
+                                </div>
+                                <div class="picker_bar">
+                                    <a id="sat_dec" class="button_pick button_pick_left">&#x25c0;</a>
+                                    <input id="sat_slider" type="range" class="slider sat_picker" min="0" max="100" step="1" value="100">
+                                    <a id="sat_inc" class="button_pick button_pick_right">&#x25b6;</a>
+                                </div>
+                                <div class="picker_bar">
+                                    <a id="bri_dec" class="button_pick button_pick_left">&#x25c0;</a>
+                                    <input id="bri_slider" type="range" class="slider bri_picker" min="0" max="100" step="1" value="100">
+                                    <a id="bri_inc" class="button_pick button_pick_right">&#x25b6;</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="scene_picker_bottom">
+                            <div class="scene_save">
+                                <a id="scene_btn_save" class="btn">Save scene</a>
+                            </div>
+                            <div class="scene_controls">
+                                <a id="picker_btn_on" class="btn scene_ctrl">On</a>
+                                <a id="picker_btn_off" class="btn scene_ctrl">Off</a>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
                     </div>
                 </div>
 

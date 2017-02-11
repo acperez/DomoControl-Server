@@ -1,42 +1,50 @@
 [
   {
-    "id": 1,
     "name": "Blue",
-    "colors": ["#0000FF"]
+    "lights": [],
+    "colors": ["#0000FF"],
+    "default": true
   },
   {
-    "id": 2,
     "name": "Orange",
-    "colors": ["#FF9600"]
+    "lights": [],
+    "colors": ["#FF9600"],
+    "default": true
   },
   {
-    "id": 3,
     "name": "Red",
-    "colors": ["#FF0000"]
+    "lights": [],
+    "colors": ["#FF0000"],
+    "default": true
   },
   {
-    "id": 4,
     "name": "Green",
-    "colors": ["#00FF00"]
+    "lights": [],
+    "colors": ["#00FF00"],
+    "default": true
   },
   {
-    "id": 5,
     "name": "Sea",
-    "colors": ["#0030FF", "#009CFF", "#0FF1FF"]
+    "lights": [],
+    "colors": ["#0030FF", "#009CFF", "#0FF1FF"],
+    "default": true
   },
   {
-    "id": 6,
     "name": "Peach",
-    "colors": ["#FFA800", "#FF9600", "#FFC600"]
+    "lights": [],
+    "colors": ["#FFA800", "#FF9600", "#FFC600"],
+    "default": true
   },
   {
-    "id": 7,
     "name": "Fire",
-    "colors": ["#FF0000", "#FF4545", "#FF1E00"]
+    "lights": [],
+    "colors": ["#FF0000", "#FF4545", "#FF1E00"],
+    "default": true
   },
   {
-    "id": 8,
     "name": "Forest",
-    "colors": ["#1B8F00", "#30FF00", "#86FF6A"]
+    "lights": [],
+    "colors": ["#1B8F00", "#30FF00", "#86FF6A"],
+    "default": true
   }
 ]

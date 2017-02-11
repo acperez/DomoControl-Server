@@ -10,8 +10,6 @@ import scala.util.{Failure, Success, Try}
 
 case class Device(id: String, baseUrl: URL, deviceType: String) {
 
-  val CONNECTION_RETRIES: Int = 3
-
   def validType(): Boolean = deviceType.equalsIgnoreCase("urn:Belkin:device:socket:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:sensor:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:lightswitch:1") ||
@@ -19,14 +17,17 @@ case class Device(id: String, baseUrl: URL, deviceType: String) {
     deviceType.equalsIgnoreCase("urn:Belkin:device:NetCamSensor:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:insight:1")
 
-  def getState(retries: Int = CONNECTION_RETRIES): Boolean = {
-    if (retries < 0) throw new Exception("Max number of retries to getState of Wemo")
-
-    Try(internalGetState()) match {
-      case Success(result) => result
-      case Failure(error) =>
-        Logger.info(f"Wemo getState error: ${error.getMessage}")
-        getState(retries - 1)
+  def getState(retries: Int): Option[Boolean] = {
+    if (retries < 0) {
+      Logger.info("Max number of retries to getState of Wemo")
+      None
+    } else {
+      Try(internalGetState()) match {
+        case Success(result) => Some(result)
+        case Failure(error) =>
+          Logger.info(f"Wemo getState error: ${error.getMessage}")
+          getState(retries - 1)
+      }
     }
   }
 
@@ -57,7 +58,7 @@ case class Device(id: String, baseUrl: URL, deviceType: String) {
     parseGetBinaryState(response)
   }
 
-  def setState(state: Boolean, retries: Int = CONNECTION_RETRIES): Unit = {
+  def setState(state: Boolean, retries: Int): Unit = {
     if (retries < 0) throw new Exception("Max number of retries to setState of Wemo")
 
     val result = Try(internalSetState(state))
