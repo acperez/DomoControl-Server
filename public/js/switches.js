@@ -27,8 +27,10 @@ var Switches = (function() {
 
     // Show items
     switches.forEach(function(domoSwitch) {
-      var element = renderSwitch(domoSwitch);
-      listDiv.appendChild(element);
+      if (domoSwitch.available) {
+        var element = renderSwitch(domoSwitch);
+        listDiv.appendChild(element);
+      }
     });
 
     var clear = document.createElement('div');

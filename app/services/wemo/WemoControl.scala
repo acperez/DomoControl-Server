@@ -35,17 +35,21 @@ object WemoControl {
     }
   }
 
-  def getSwitchStatus(wemoConfig: WemoConf, id: String): Boolean = {
+  def getSwitchStatus(wemoConfig: WemoConf, id: String): Option[Boolean] = {
     wemoConfig.devices.find(_.serial == id) match {
       case None => throw new Exception(s"No wemo device with $id available")
       case Some(device) =>
-        device.getState
+        device.getState()
     }
   }
 
   def getDevices(wemoConfig: WemoConf): Seq[DomoSwitch] = {
     wemoConfig.devices.map{ device =>
-      DomoSwitch(WemoService.serviceId, device.serial, device.getState, device.name)
+      val state = device.getState()
+      if (state.isEmpty)
+        DomoSwitch(WemoService.serviceId, device.serial, status = false, device.name, available = false)
+      else
+        DomoSwitch(WemoService.serviceId, device.serial, state.get, device.name, available = true)
     }
   }
 }

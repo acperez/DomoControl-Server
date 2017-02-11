@@ -1,7 +1,5 @@
 package services.philips_hue
 
-import java.awt.Color
-
 import com.philips.lighting.model.{PHLight, PHLightState}
 
 object LightUtils {
@@ -38,8 +36,8 @@ object LightUtils {
     val sat: Float = light.getLastKnownLightState.getSaturation / 254.0f
     val brightness: Float = light.getLastKnownLightState.getBrightness / 254.0f
 
-    val hsv: Seq[Float] = Seq(hue, sat, brightness)
-    Color.HSBtoRGB(hsv.head, hsv(1), hsv(2))
+    hsvToColor(hue, sat, brightness)
+    //Color.HSBtoRGB(hue, sat, brightness)
   }
 
   def hueCorrection(hue: Float): Int = {
@@ -126,6 +124,47 @@ object LightUtils {
         else rawH
 
       Array[Float](h, s, v)
+    }
+  }
+
+  private def ColorSetARGB(a: Int, r: Int, g: Int, b: Int): Int = {
+    (a << 24) | (r << 16) | (g << 8) | (b << 0)
+  }
+
+  private def scalarToByte(value: Float): Int = {
+    if (value < 0) return 0
+    if (value >= 1.0f) return 255
+    (value * 65536).toInt >> 8
+  }
+
+  def hsvToColor(hue: Float, sat: Float, brightness: Float): Int = {
+    val alpha = 0xFF
+
+    val s = scalarToByte(sat)
+    val v = scalarToByte(brightness)
+
+    if (s == 0) {
+      ColorSetARGB(alpha, v, v, v)
+    }
+
+    val hx = if (hue < 0 || hue >= 360) 0
+      else ((hue / 60) * 65536).toInt
+
+    val f = hx & 0xFFFFFF
+
+    val v_scale = v + 1
+    val p = ((255 - s) * v_scale) >> 8
+    val q = ((255 - (s * f >> 16)) * v_scale) >> 8
+    val t = ((255 - (s * (65536 - f) >> 16)) * v_scale) >> 8
+
+    val ss = hx >> 16
+    ss match {
+      case 0 => ColorSetARGB(alpha, v, t, p)
+      case 1 => ColorSetARGB(alpha, q, v, p)
+      case 2 => ColorSetARGB(alpha, p, v, t)
+      case 3 => ColorSetARGB(alpha, p, q, v)
+      case 4 => ColorSetARGB(alpha, t, p, v)
+      case _ => ColorSetARGB(alpha, v, p, q)
     }
   }
 }
