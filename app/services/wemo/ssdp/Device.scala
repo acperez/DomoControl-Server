@@ -3,8 +3,9 @@ package services.wemo.ssdp
 import java.io.{InputStream, OutputStream}
 import java.net.{HttpURLConnection, URL}
 
-import play.api.Logger
+import services.wemo.MaxRetriesException
 
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.io.Source.fromInputStream
 import scala.util.{Failure, Success, Try}
 
@@ -17,16 +18,20 @@ case class Device(id: String, baseUrl: URL, deviceType: String) {
     deviceType.equalsIgnoreCase("urn:Belkin:device:NetCamSensor:1") ||
     deviceType.equalsIgnoreCase("urn:Belkin:device:insight:1")
 
-  def getState(retries: Int): Option[Boolean] = {
-    if (retries < 0) {
-      Logger.info("Max number of retries to getState of Wemo")
-      None
-    } else {
+  def getState(retries: Int)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val promise = Promise[Boolean]
+    Future {
+      internalGetStateManager(retries, promise)
+    }
+    promise.future
+  }
+
+  private def internalGetStateManager(retries: Int, promise: Promise[Boolean], lastError: String = ""): Unit = {
+    if (retries < 0) promise.failure(MaxRetriesException(lastError))
+    else {
       Try(internalGetState()) match {
-        case Success(result) => Some(result)
-        case Failure(error) =>
-          Logger.info(f"Wemo getState error: ${error.getMessage}")
-          getState(retries - 1)
+        case Success(result) => promise.success(result)
+        case Failure(error) => internalGetStateManager(retries - 1, promise, error.getMessage)
       }
     }
   }
@@ -58,17 +63,25 @@ case class Device(id: String, baseUrl: URL, deviceType: String) {
     parseGetBinaryState(response)
   }
 
-  def setState(state: Boolean, retries: Int): Unit = {
-    if (retries < 0) throw new Exception("Max number of retries to setState of Wemo")
+  def setState(state: Boolean, retries: Int)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val promise = Promise[Boolean]
+    Future {
+      internalSetStateManager(state, retries, promise)
+    }
+    promise.future
+  }
 
-    val result = Try(internalSetState(state))
-    if (result.isFailure) {
-      Logger.info(f"Wemo setState error: ${result.failed.get.getMessage}")
-      setState(state, retries - 1)
+  private def internalSetStateManager(state: Boolean, retries: Int, promise: Promise[Boolean], lastError: String = ""): Unit = {
+    if (retries < 0) promise.failure(MaxRetriesException(lastError))
+    else {
+      Try(internalSetState(state)) match {
+        case Success(_) => promise.success(state)
+        case Failure(error) => internalSetStateManager(state, retries - 1, promise, error.getMessage)
+      }
     }
   }
 
-  private def internalSetState(state: Boolean) = {
+  private def internalSetState(state: Boolean): Unit = {
     val msg: Array[Byte] = WemoHTTPMsg.setState(state)
     val url: URL = new URL(baseUrl.getProtocol, baseUrl.getHost, baseUrl.getPort, "/upnp/control/basicevent1")
     val connection: HttpURLConnection = url.openConnection.asInstanceOf[HttpURLConnection]

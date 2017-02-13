@@ -2,20 +2,9 @@ package services.common
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
 import services.philips_hue.LightService
 import services.wemo.WemoService
-
-case class DomoServiceContainer(id: Int, name: String, service: DomoService)
-
-object DomoServiceContainer {
-  implicit val serviceWrites = new Writes[DomoServiceContainer] {
-    def writes(domoServiceContainer: DomoServiceContainer) = Json.obj(
-      "id" -> domoServiceContainer.id,
-      "name" -> domoServiceContainer.name
-    )
-  }
-}
 
 @Singleton
 class DomoServices @Inject()(
@@ -23,9 +12,9 @@ class DomoServices @Inject()(
   wemoService: WemoService) {
 
   def services = Map(
-    lightService.serviceId -> DomoServiceContainer(lightService.serviceId, lightService.serviceName, lightService),
-    wemoService.serviceId -> DomoServiceContainer(wemoService.serviceId, wemoService.serviceName, wemoService)
+    lightService.id -> lightService,
+    wemoService.id -> wemoService
   )
 
-  def lightScenes = lightService.getScenes
+  def lightScenes: JsValue = lightService.getScenes
 }
