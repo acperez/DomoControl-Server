@@ -23,9 +23,9 @@ var Philips = (function() {
     lightListDiv = document.getElementById('light_list');
     colorPickerDiv = document.getElementById('color_picker');
 
-    document.getElementById('scene_btn_save').addEventListener('click', function(evt) { saveScene(); });
-    document.getElementById('picker_btn_on').addEventListener('click', function(evt) { setPickerStatus(true); });
-    document.getElementById('picker_btn_off').addEventListener('click', function(evt) { setPickerStatus(false); });
+    document.getElementById('scene_btn_save').addEventListener('click', function() { saveSceneClick(); });
+    document.getElementById('picker_btn_on').addEventListener('click', function() { setPickerStatus(true); });
+    document.getElementById('picker_btn_off').addEventListener('click', function() { setPickerStatus(false); });
 
     scenesDiv = document.getElementById('scenes');
 
@@ -33,28 +33,28 @@ var Philips = (function() {
 
     loadLights();
 
-    window.addEventListener('resize', function(evt) { setContainerWidth(); });
+    window.addEventListener('resize', function() { setContainerWidth(); });
 
     document.getElementsByName('philips_toggle').forEach(function(toggleButton) {
-      toggleButton.addEventListener('click', function(evt) { togglePanel(toggleButton.value); })
+      toggleButton.addEventListener('click', function() { togglePanel(toggleButton.value); })
     });
 
-    document.getElementById('scene_btn_edit').addEventListener('click', function(evt) { toggleScenesEdit(); });
+    document.getElementById('scene_btn_edit').addEventListener('click', function() { toggleScenesEdit(); });
 
     hueSlider = document.getElementById('hue_slider');
-    hueSlider.addEventListener('input', function(evt) { setPickerHue(hueSlider.valueAsNumber); });
-    document.getElementById('hue_dec').addEventListener('click', function(evt) { changePickerHue(-1); });
-    document.getElementById('hue_inc').addEventListener('click', function(evt) { changePickerHue(1); });
+    hueSlider.addEventListener('input', function() { setPickerHue(hueSlider.valueAsNumber); });
+    document.getElementById('hue_dec').addEventListener('click', function() { changePickerHue(-1); });
+    document.getElementById('hue_inc').addEventListener('click', function() { changePickerHue(1); });
 
     satSlider = document.getElementById('sat_slider');
-    satSlider.addEventListener('input', function(evt) { setPickerSat(satSlider.valueAsNumber); });
-    document.getElementById('sat_dec').addEventListener('click', function(evt) { changePickerSat(-1); });
-    document.getElementById('sat_inc').addEventListener('click', function(evt) { changePickerSat(1); });
+    satSlider.addEventListener('input', function() { setPickerSat(satSlider.valueAsNumber); });
+    document.getElementById('sat_dec').addEventListener('click', function() { changePickerSat(-1); });
+    document.getElementById('sat_inc').addEventListener('click', function() { changePickerSat(1); });
 
     briSlider = document.getElementById('bri_slider');
-    briSlider.addEventListener('input', function(evt) { setPickerBri(briSlider.valueAsNumber); });
-    document.getElementById('bri_dec').addEventListener('click', function(evt) { changePickerBri(-1); });
-    document.getElementById('bri_inc').addEventListener('click', function(evt) { changePickerBri(1); });
+    briSlider.addEventListener('input', function() { setPickerBri(briSlider.valueAsNumber); });
+    document.getElementById('bri_dec').addEventListener('click', function() { changePickerBri(-1); });
+    document.getElementById('bri_inc').addEventListener('click', function() { changePickerBri(1); });
   }
 
   function togglePanel(value) {
@@ -96,8 +96,8 @@ var Philips = (function() {
 
     sceneDiv.onclick = (function() {
       var id = scene.name;
-      return function(evt) {
-        setLightsColor(id);
+      return function() {
+        loadScene(id);
       }
     })();
 
@@ -108,7 +108,7 @@ var Philips = (function() {
       img.onclick = (function () {
         return function(evt) {
           evt.stopPropagation();
-          sendRemoveScene(scene.name, function(status) {
+          removeScene(scene.name, function() {
             toggleScenesEdit();
           })
         }
@@ -197,7 +197,7 @@ var Philips = (function() {
     return -1;
   }
 
-  function saveScene() {
+  function saveSceneClick() {
     var lights = lightsGroup.map(function(light) {
       return light.id;
     });
@@ -222,7 +222,7 @@ var Philips = (function() {
           colors: colors
         };
 
-        sendSaveScene(scene, function(status) {
+        saveScene(scene, function(status) {
           var msg = '';
           if (status == 200) msg = 'Scene saved successfully';
           else if (status == 409) msg = 'There is already a scene called "' + name + '"';
@@ -287,7 +287,7 @@ var Philips = (function() {
     briSlider.style.backgroundColor = 'hsl(' + color.hue + ', 100%, 50%)';
 
     var rgb = colorPickerDiv.style.backgroundColor.match(/\d+/g);
-    setPickerColor(rgb.toString());
+    setPickerColor(rgb);
   }
 
   var queue = null;
@@ -301,9 +301,8 @@ var Philips = (function() {
   }
 
   function triggerSetPickerColor(rgb) {
-    var colorCode = btoa(rgb);
-    var ids = btoa(lightsGroup.map(function(light){return light.id}).toString());
-    setLightColor(ids, colorCode, function() {
+    var ids = lightsGroup.map(function(light){return light.id});
+    setLightColor(ids, rgb, function() {
       if(queue == null) running = false;
       else {
         var next = queue;
@@ -327,36 +326,34 @@ var Philips = (function() {
     }, {disableAuth: true, loading: false});
   }
 
-  function setLightsStatus(status) {
-    var url = 'system/' + serviceId + '/switches/' + (status ? 1 : 0);
-    HttpClient.sendRequest(url, 'GET', null, function(status, statusText, response) {
-      if (status != 200) console.log("Switch set status error: " + status + " - " + statusText + " - " + response);
-    }, {disableAuth: true, loading: false});
-  }
-
   function setLightColor(lightIds, color, listener) {
-    var url = 'system/' + serviceId + '/switches/' + lightIds + '/extra/' + color;
-    HttpClient.sendRequest(url, 'GET', null, function(status, statusText, response) {
+    var url = 'system/' + serviceId + '/light/color';
+
+    var data = {
+      lightIds: lightIds,
+      color: {
+        r: parseInt(color[0]),
+        g: parseInt(color[1]),
+        b: parseInt(color[2])
+      }
+    };
+
+    HttpClient.sendRequest(url, 'POST', data, function(status, statusText, response) {
       if (status != 200) console.log("Switch set status error: " + status + " - " + statusText + " - " + response);
       if (listener != null) listener();
     }, {disableAuth: true, loading: false});
   }
 
-  function setLightsColor(sceneId) {
-    var url = 'system/' + serviceId + '/switches/extra/';
+  function loadScene(sceneId) {
+    var url = 'system/' + serviceId + '/light/scene/' + sceneId;
 
-    var data = {
-      "action": 0,
-      "sceneId": sceneId
-    };
-
-    HttpClient.sendRequest(url, 'POST', data, function(status, statusText, response) {
+    HttpClient.sendRequest(url, 'GET', null, function(status, statusText, response) {
       if (status != 200) console.log("Switch set status error: " + status + " - " + statusText + " - " + response);
     }, {disableAuth: true, loading: false});
   }
 
-  function sendSaveScene(scene, callback) {
-    var url = 'system/' + serviceId + '/switches/extra/';
+  function saveScene(scene, callback) {
+    var url = 'system/' + serviceId + '/light/scene';
 
     var data = {
       "action": 1,
@@ -369,15 +366,10 @@ var Philips = (function() {
     }, {disableAuth: true, loading: false});
   }
 
-  function sendRemoveScene(scene, callback) {
-    var url = 'system/' + serviceId + '/switches/extra/';
+  function removeScene(sceneId, callback) {
+    var url = 'system/' + serviceId + '/light/scene/' + sceneId;
 
-    var data = {
-        "action": 2,
-        "sceneId": scene
-    };
-
-    HttpClient.sendRequest(url, 'POST', data, function(status, statusText, response) {
+    HttpClient.sendRequest(url, 'DELETE', null, function(status, statusText, response) {
         if (status != 200) console.log("Switch set status error: " + status + " - " + statusText + " - " + response);
         callback(status);
     }, {disableAuth: true, loading: false});

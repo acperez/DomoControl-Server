@@ -4,7 +4,10 @@ import java.net.URL
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, OWrites, Reads}
+import services.common.DomoSwitch
 import services.wemo.ssdp.Device
+
+import scala.concurrent.{ExecutionContext, Future}
 
 case class WemoDevice(
   serial: String,
@@ -18,9 +21,10 @@ case class WemoDevice(
 
   lazy private val device = Device(serial, new URL(url), deviceType)
 
-  def setState(state: Boolean, retries: Int = CONNECTION_RETRIES) = device.setState(state, retries)
+  def setState(state: Boolean, retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[Boolean] = device.setState(state, retries)
 
-  def getState(retries: Int = CONNECTION_RETRIES): Option[Boolean] = device.getState(retries)
+  def getState(retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[DomoSwitch] = device.getState(retries)
+    .map(state => DomoSwitch(WemoService.serviceId, serial, state, name, available = true))
 
   override def equals(other: Any) = other match {
     case that: WemoDevice =>

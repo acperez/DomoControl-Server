@@ -1,21 +1,19 @@
 package services.philips_hue
 
-import java.awt.Color
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import models.config.{PhilipsConf, PhilipsScene}
 import org.apache.commons.codec.binary.Base64
-import play.api.http.Status
-import services.common.{ConfigLoader, DomoService, DomoSwitch, SceneManager}
+import services.common._
 import play.api.{Environment, Logger}
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.json._
+import play.api.mvc.{Result, Results}
 import reactivemongo.core.errors.DatabaseException
 import sun.misc.BASE64Decoder
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class LightService @Inject() (
@@ -23,7 +21,7 @@ class LightService @Inject() (
   sceneManager: SceneManager,
   env: Environment,
   appLifecycle: ApplicationLifecycle,
-  akkaSystem: ActorSystem) extends DomoService {
+  akkaSystem: ActorSystem) extends DomoPhilipsService {
 
   implicit val ec: ExecutionContext = akkaSystem.dispatchers.lookup("custom-context")
 
@@ -36,9 +34,22 @@ class LightService @Inject() (
 
   val lightListener = LightListener(this)
 
-  override def serviceId: Int = LightService.serviceId
+  def onConnect(): Unit = {
+    val lights = getSwitches
+    Logger.info(f"Light list: $lights")
+  }
 
-  override def serviceName: String = LightService.serviceName
+  def getServiceConf: PhilipsConf = configLoader.getConfig(PhilipsConf(None, None))
+
+  def setServiceConf(philipsConf: PhilipsConf): Unit = configLoader.setConfig(philipsConf)
+
+  // DomoService methods
+
+  override def id: Int = LightService.serviceId
+
+  override def name: String = LightService.serviceName
+
+  override def connected: Boolean = LightControl.isConnected(getServiceConf)
 
   override def init(): Unit = {
     Logger.info("Init Philips Hue service")
@@ -53,168 +64,90 @@ class LightService @Inject() (
     disconnect()
   }
 
-  def onConnect(): Unit = {
-    val lights = getSwitches
-    Logger.info(f"Light list: $lights")
-  }
-
-  def getServiceConf: PhilipsConf = configLoader.getConfig(PhilipsConf(None, None))
-
-  override def getConf: JsValue = Json.toJson(getServiceConf)
-
-  def setServiceConf(philipsConf: PhilipsConf): Unit = configLoader.setConfig(philipsConf)
-
-  override def setConf(conf: JsValue): Unit = setServiceConf(conf.as[PhilipsConf])
-
-  override def connected: Boolean = LightControl.isConnected(getServiceConf)
-
-  override def getConnectionStatus: JsValue = Json.toJson(connected)
-
   override def connect(): Unit = LightControl.connect(getServiceConf, lightListener)
 
   override def disconnect(): Unit = LightControl.disconnect(lightListener)
 
-  def getLights: Seq[DomoSwitch] = LightControl.getLights
+  override def getConf: JsValue = Json.toJson(getServiceConf)
 
-  def getLightStatus(id: String): Boolean = LightControl.getLightStatus(id)
+  override def setConf(conf: JsValue): Unit = setServiceConf(conf.as[PhilipsConf])
 
-  override def getSwitches: JsValue = Json.toJson(LightControl.getLightsWithColor)
+  override def getConnectionStatus: JsValue = Json.toJson(connected)
 
-  override def getSwitch(id: String): JsValue = Json.toJson(getLightStatus(id))
+  // DomoSwitchService methods
 
-  override def setSwitchesStatus(status: Boolean): Unit = getLights.foreach( light => LightControl.setLightStatus(light.id, status))
+  override def getSwitches: Future[JsValue] = LightControl.getLights.map(lights => Json.toJson(lights))
 
-  override def setSwitchesExtra(switches: String, data: String): Future[Boolean] = {
-    val ids = decode(switches).split(',')
-
-    decode(data).split(',') match {
-      case Array(r, g, b) =>
-        LightControl.setLightColor(ids, Seq(r.toInt, g.toInt, b.toInt))
-    }
-  }
-
-  override def setSwitchStatus(id: String, status: Boolean): Unit = LightControl.setLightStatus(id, status)
-
-  override def setSwitchExtra(id: String, data: String): Future[Boolean] = ???
-
-  def setLightColor(id: String, color: Long): Unit = {
-    val r = (color >> 16).toInt
-    val g = ((color >> 8) & 255).toInt
-    val b = (color & 255).toInt
-    val rgb = Color.RGBtoHSB(r, g, b, null)
-    //LightControl.setLightColor(id, rgb)
-  }
-
-  override def setSwitchesExtraPost(data: JsValue): Future[Int] = {
-    val action = (data \ "action").as[Int]
-    action match {
-      case 0 => loadScene(data)
-      case 1 => saveScene(data)
-      case 2 => removeScene(data)
-      case _ => Future { Status.NOT_FOUND }
-    }
-  }
-
-  def loadScene(data: JsValue): Future[Int] = {
-    (data \ "sceneId").asOpt[String] match{
-      case None => Future { Status.BAD_REQUEST }
-      case Some(sceneId) =>
-
-        def sendActions(actions: Seq[(DomoSwitch, Array[Int])]): Unit = {
-          if (actions.nonEmpty) {
-            val action = actions.head
-            val future = LightControl.setLightColor(Seq(action._1.id), action._2)
-            future.onComplete(_ => sendActions(actions.tail))
-          }
-        }
-
-        sceneManager.get(sceneId.toLowerCase()) match {
-          case None =>
-            Logger.warn(s"No scene with id ${sceneId.toLowerCase()}")
-            Future {
-              Status.NOT_FOUND
-            }
-
-          case Some(scene) =>
-            val colors = scene.colors.map { colorStr =>
-              val colorRGB = Color.decode(colorStr)
-              Array(colorRGB.getRed, colorRGB.getGreen, colorRGB.getBlue)
-            }
-
-            val lights = getLights
-            val actions =
-              if (colors.size > lights.size) lights.zip(colors)
-              else lights.zip(Stream.continually(colors).flatten)
-
-            sendActions(actions)
-            Future {
-              Status.OK
-            }
+  override def getSwitch(id: String): Future[Result] = LightControl.getLight(id)
+    .map(switch => Results.Ok(Json.toJson(switch.status)))
+    .recover {
+      case exception =>
+        Logger.error(f"Error get switch: ${exception.getMessage}")
+        exception match {
+          case _: BridgeNotAvailableException => Results.ServiceUnavailable
+          case _: LightNotFoundException => Results.NotFound
+          case _ => Results.InternalServerError
         }
     }
-  }
 
-  def saveScene(data: JsValue): Future[Int] = {
-
-    val sceneValue = (data \ "scene").as[JsObject] ++ Json.obj("default" -> false)
-    sceneValue.asOpt[PhilipsScene] match {
-      case None => Future { Status.BAD_REQUEST }
-      case Some(scene) =>
-
-        val promise = Promise[Int]
-        Future {
-          val result = sceneManager.save(scene)
-          result.onComplete {
-            case Success(_) =>
-              sceneManager.addToCache(scene)
-              promise.success(Status.OK)
-            case Failure(e: DatabaseException) if e.code.getOrElse(0) == 11000 =>
-              promise.success(Status.CONFLICT)
-            case Failure(e) =>
-              Logger.error(f"Faled to save a scene: ${e.getMessage}")
-              promise.success(Status.INTERNAL_SERVER_ERROR)
-          }
-        }
-
-        promise.future
-    }
-  }
-
-  def removeScene(data: JsValue): Future[Int] = {
-    (data \ "sceneId").asOpt[String] match{
-      case None => Future { Status.BAD_REQUEST }
-      case Some(sceneId) =>
-
-        sceneManager.get(sceneId.toLowerCase()) match {
-          case None =>
-            Logger.warn(s"No scene with id ${sceneId.toLowerCase()}")
-            Future { Status.NOT_FOUND }
-
-          case Some(scene) if scene.default => Future { Status.FORBIDDEN }
-
-          case Some(_) =>
-            val promise = Promise[Int]
-
-            sceneManager.remove(sceneId.toLowerCase()).onComplete {
-              case Success(result) if result.isEmpty => promise.success(Status.NOT_FOUND)
-              case Success(result) =>
-                sceneManager.removeFromCache(result.get)
-                promise.success(Status.OK)
-              case Failure(e) =>
-                Logger.error(f"Failed to remove scene: ${e.getMessage}")
-                promise.success(Status.INTERNAL_SERVER_ERROR)
-            }
-
-            promise.future
+  override def setSwitchesStatus(status: Boolean): Future[Result] = LightControl.setLightsStatus(status)
+    .map(_ => Results.Ok)
+    .recover {
+      case exception =>
+        Logger.error(f"Error updating lights: ${exception.getMessage}")
+        exception match {
+          case _: BridgeNotAvailableException => Results.ServiceUnavailable
+          case _: LightUpdateException => Results.InternalServerError
+          case _ => Results.InternalServerError
         }
     }
-  }
+
+  override def setSwitchStatus(id: String, status: Boolean): Future[Result] = LightControl.setLightStatus(id, status)
+    .map(_ => Results.Ok)
+    .recover {
+      case exception =>
+        Logger.error(f"Error updating light: ${exception.getMessage}")
+        exception match {
+          case _: BridgeNotAvailableException => Results.ServiceUnavailable
+          case _: LightUpdateException => Results.InternalServerError
+          case _ => Results.InternalServerError
+        }
+    }
+
+  // DomoPhilipsService methods
+
+  override def setLightsColor(lights: Seq[String], color: Seq[Int]): Future[Result] = LightControl.setLightsColor(lights, color)
+    .map(_ => Results.Ok)
+
+  override def loadScene(sceneId: String): Future[Result] = LightControl.loadScene(sceneId, sceneManager)
+    .map(_ => Results.Ok)
+    .recover {
+      case exception =>
+        Logger.error(f"Error loading light scene: ${exception.getMessage}")
+        exception match {
+          case _: SceneNotFoundException => Results.NotFound
+          case _ => Results.InternalServerError
+        }
+    }
+
+  override def saveScene(scene: PhilipsScene): Future[Result] = sceneManager.save(scene)
+    .map(_ => Results.Ok)
+    .recover {
+      case ex: DatabaseException if ex.code.getOrElse(0) == 11000 => Results.Conflict
+      case ex =>
+        Logger.error(f"Faled to save a scene: ${ex.getMessage}")
+        Results.InternalServerError
+    }
+
+  override def removeScene(sceneId: String): Future[Result] = sceneManager.remove(sceneId)
+    .map(_ => Results.Ok)
+    .recover { case exceptions =>
+      Results.InternalServerError
+    }
 
   def getScenes: JsValue = {
     Json.toJson(sceneManager.getAll)
   }
-
-  override def setSwitchExtraPost(id: String, data: JsValue): Unit = ???
 }
 
 object LightService {

@@ -53,13 +53,14 @@ class PhilipsActor(phHueSDK: PHHueSDK) extends Actor {
   }
 
   def setLightColor(id: String, color: Seq[Int])(implicit ec: ExecutionContext): Future[Boolean] = {
-    val bridge = phHueSDK.getSelectedBridge
-    if (bridge == null) throw new Exception("Philips Hue bridge not available")
-    else {
-
-      val promise = Promise[Boolean]
-
-      Future {
+    val promise = Promise[Boolean]
+    Future {
+      val bridge = phHueSDK.getSelectedBridge
+      if (bridge == null) {
+        Logger.error("Philips Hue bridge not available")
+        promise.success(true)
+      }
+      else {
         bridge.updateLightState(id, LightUtils.createColorStateFromRGB(color), new PHLightListener {
           override def onReceivingLights(list: util.List[PHBridgeResource]): Unit = {}
 
@@ -78,9 +79,9 @@ class PhilipsActor(phHueSDK: PHHueSDK) extends Actor {
           }
         })
       }
-
-      promise.future
     }
+
+    promise.future
   }
 }
 

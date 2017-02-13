@@ -2,9 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing how to write asynchronous code
+# DomoController
+
 GET     /systems                                   controllers.DomoController.systems
-GET     /systems/switches                          controllers.DomoController.getAllSwitches
 
 GET     /system/:id/conf                           controllers.DomoController.getConf(id: Int)
 POST    /system/:id/conf                           controllers.DomoController.setConf(id: Int)
@@ -13,18 +13,29 @@ GET     /system/:id/connection/status              controllers.DomoController.ge
 GET     /system/:id/connection/connect             controllers.DomoController.connect(id: Int)
 GET     /system/:id/connection/disconnect          controllers.DomoController.disconnect(id: Int)
 
-GET     /system/:id/switches                       controllers.DomoController.getSwitches(id: Int)
-GET     /system/:id/switch/:switchId               controllers.DomoController.getSwitch(id: Int, switchId: String)
-
-GET     /system/:id/switches/:status               controllers.DomoController.setSwitchesStatus(id: Int, status: Int)
-GET     /system/:id/switches/:switches/extra/:data controllers.DomoController.setSwitchesExtra(id: Int, switches: String, data: String)
-POST    /system/:id/switches/extra/                controllers.DomoController.setSwitchesExtraPost(id: Int)
-
-GET     /system/:id/switch/:switchId/:status       controllers.DomoController.setSwitchStatus(id: Int, switchId: String, status: Int)
-GET     /system/:id/switch/:switchId/extra/:data   controllers.DomoController.setSwitchExtra(id: Int, switchId: String, data: String)
-POST    /system/:id/switch/:switchId/extra/        controllers.DomoController.setSwitchExtraPost(id: Int, switchId: String)
-
 GET     /js/domocontrol_data.js                    controllers.DomoController.getDomoControlData()
+
+
+# DomoSwitchController
+
+GET     /systems/switches                          controllers.DomoSwitchController.getAllSwitches
+
+GET     /system/:id/switches                       controllers.DomoSwitchController.getSwitches(id: Int)
+GET     /system/:id/switch/:switchId               controllers.DomoSwitchController.getSwitch(id: Int, switchId: String)
+
+GET     /system/:id/switches/:status               controllers.DomoSwitchController.setSwitchesStatus(id: Int, status: Int)
+GET     /system/:id/switch/:switchId/:status       controllers.DomoSwitchController.setSwitchStatus(id: Int, switchId: String, status: Int)
+
+
+# DomoPhilipsController
+
+POST    /system/:id/light/color                    controllers.DomoPhilipsController.setLightsColor(id: Int)
+GET     /system/:id/light/scene/:sceneId           controllers.DomoPhilipsController.loadScene(id: Int, sceneId: String)
+
+POST    /system/:id/light/scene                    controllers.DomoPhilipsController.saveScene(id: Int)
+DELETE  /system/:id/light/scene/:sceneId           controllers.DomoPhilipsController.removeScene(id: Int, sceneId: String)
+
+# HTML resources
 
 GET  /                      controllers.Default.redirect(to = "index.html")
 GET  /*file                 controllers.Assets.at(path="/public", file)
