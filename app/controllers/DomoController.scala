@@ -7,6 +7,7 @@ import play.api.Logger
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc._
 import services.common.{DomoService, DomoServices}
+import services.wemo.WemoService
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
@@ -66,8 +67,10 @@ class DomoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServic
   def getDomoControlData: Action[AnyContent] = Action.async {
     val promise = Promise[Result]
     Future {
+
       val services = domoServices.services
-      val systemObjects = services.map { case (id, service) =>
+
+      val systemFutures = services.map { case (id, service) =>
           service.getSwitches.map { switches =>
             id.toString -> Json.obj(
               "name" -> service.name,
@@ -76,10 +79,25 @@ class DomoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServic
           }
         }
 
-      Future.sequence(systemObjects).map { data =>
-        val systems = JsObject(data.toMap)
+      val monitorFutures = services.values.flatMap {
+        case service: WemoService => Some(service.getCurrentUsageForAll)
+        case _ => None
+      }
+
+      val monitorsRequest = Future.sequence(monitorFutures)
+      val systemRequest = Future.sequence(systemFutures).map { data =>
+        JsObject(data.toMap)
+      }
+
+      val futures = for{
+        monitors <- monitorsRequest
+        systems <- systemRequest
+      } yield (monitors, systems)
+
+      futures.map { case (monitors, systems) =>
         val scenes = domoServices.lightScenes.as[JsArray]
-        val result = Ok(views.js.domoControlData.render(systems, scenes)).as("text/javascript utf-8")
+        val data = Json.toJson(monitors.flatten).as[JsArray]
+        val result = Ok(views.js.domoControlData.render(systems, scenes, data)).as("text/javascript utf-8")
         promise.success(result)
       }.recover { case exception =>
         Logger.error(f"Error getting systems js: ${exception.getMessage}")

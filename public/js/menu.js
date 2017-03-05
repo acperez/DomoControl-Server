@@ -25,7 +25,7 @@ var Menu = (function() {
 
     addMenuItem('menu_switches', 'switches');
     addMenuItem('menu_philips_hue', 'philips_hue');
-    addMenuItem('menu_wemo', 'fake');
+    addMenuItem('menu_wemo', 'wemo');
     addMenuItem('menu_events', 'fake');
 
     settings.panel = document.getElementById('menu_settings');

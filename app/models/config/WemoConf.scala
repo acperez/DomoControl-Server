@@ -18,7 +18,7 @@ object WemoConf {
     (JsPath \ "id").read[Int] and
     (JsPath \ "name").read[String] and
     (JsPath \ "devices").read[Seq[WemoDevice]]
-    )((id, name, devices) => WemoConf.apply(devices))
+  )((id, name, devices) => WemoConf.apply(devices))
 
   implicit val writes: OWrites[WemoConf] = (
     (JsPath \ "id").write[Int] and

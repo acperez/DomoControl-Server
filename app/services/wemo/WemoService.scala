@@ -8,15 +8,17 @@ import play.api.Logger
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.json._
 import play.api.mvc.{Result, Results}
-import services.common.{ConfigLoader, DomoSwitchService}
+import services.common.{ConfigLoader, DomoWemoService}
+import services.database_managers.HistoryManager
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class WemoService @Inject() (
   configLoader: ConfigLoader,
+  historyManager: HistoryManager,
   appLifecycle: ApplicationLifecycle,
-  akkaSystem: ActorSystem) extends DomoSwitchService {
+  akkaSystem: ActorSystem) extends DomoWemoService {
 
   implicit val ec: ExecutionContext = akkaSystem.dispatchers.lookup("custom-context")
 
@@ -39,8 +41,30 @@ class WemoService @Inject() (
     connect()
   }
 
-  def stop(): Unit = {
+  override def stop(): Unit = {
     Logger.info(f"Stop $name service")
+  }
+
+  override def cron(): Unit = {
+    // Update usage history
+    val result = WemoControl.getWemoDevicesUsage(getServiceConf)
+      .flatMap { devicesUsage =>
+        val futures = devicesUsage.map { usage =>
+          historyManager.save(usage)
+        }
+        Future.sequence(futures)
+      }
+
+    result.map(
+      res => Logger.info("--> " + res)
+    ).recover { case error =>
+      Logger.error(s"failed to save wemom usage history: ${error.getMessage}")
+    }
+
+    // Remove old history
+    val time = System.currentTimeMillis()
+    val timestamp = (time - time % (1000L * 60 * 60 * 24)) - 2 * (1000L * 60 * 60 * 24 * 365)
+    historyManager.removeOld(timestamp)
   }
 
   override def connect(): Unit = WemoControl.connect(this)
@@ -55,7 +79,7 @@ class WemoService @Inject() (
 
   // DomoSwitchService methods
 
-  override def getSwitches: Future[JsValue] = WemoControl.getDevices(getServiceConf)
+  override def getSwitches: Future[JsValue] = WemoControl.getDevices(this)
 
   override def getSwitch(id: String): Future[Result] = WemoControl.getSwitchStatus(getServiceConf, id)
     .map(switch => Results.Ok(Json.toJson(switch)))
@@ -83,6 +107,52 @@ class WemoService @Inject() (
         case _ => Results.InternalServerError
       }
     }
+
+  // DomoWemoService methods
+
+  override def getUsage(id: String): Future[Result] = getCurrentUsage(id)
+    .map(data => Results.Ok(Json.toJson(data)))
+    .recover { case exception =>
+      Logger.error(f"Error geting wemo monitor data: ${exception.getMessage}")
+        Results.InternalServerError
+    }
+
+  override def getUsageForAll: Future[Result] = getCurrentUsageForAll
+    .map(data => Results.Ok(Json.toJson(data)))
+    .recover { case exception =>
+      Logger.error(f"Error geting wemo monitor data: ${exception.getMessage}")
+      Results.InternalServerError
+    }
+
+  def getCurrentUsage(id: String): Future[Option[WemoMonitorData]] = WemoControl.getWemoUsage(id, getServiceConf)
+
+  def getCurrentUsageForAll: Future[Seq[WemoMonitorData]] = WemoControl.getWemoDevicesUsage(getServiceConf)
+
+  override def getHistory(id: String, month: Int): Future[Result] = historyManager.getMonthHistory(id, month)
+    .map(result => Results.Ok(result))
+    .recover {
+      case exception =>
+        Logger.error(f"Error deleting history: ${exception.getMessage}")
+        Results.InternalServerError
+    }
+
+  /*
+  override def getHistory(id: String, month: Int): Future[Result] = {
+    generateFakeUsageData()
+    Future.successful(Results.Ok)
+  }
+*/
+
+  override def clearHistory(id: String): Future[Result] = historyManager.remove(id)
+    .map(_ => Results.Ok)
+    .recover {
+      case exception =>
+        Logger.error(f"Error deleting history: ${exception.getMessage}")
+        Results.InternalServerError
+    }
+
+  def generateFakeUsageData(): Unit =
+    historyManager.generateFakeUsageData(getServiceConf.devices.filter(_.deviceType == WemoDeviceType.Monitor).map(_.name))
 }
 
 object WemoService {

@@ -1,11 +1,11 @@
-package services.common
+package services.database_managers
 
 import javax.inject.{Inject, Singleton}
 
 import models.config.PhilipsScene
-import play.api.{Environment, Logger}
 import play.api.cache.CacheApi
 import play.api.libs.json._
+import play.api.{Environment, Logger}
 import play.modules.reactivemongo.ReactiveMongoApi
 import play.modules.reactivemongo.json._
 import reactivemongo.api.Cursor
@@ -14,8 +14,8 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.play.json.collection.JSONCollection
 import services.philips_hue.{SceneDeleteForbidenException, SceneNotFoundException}
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.io.Source._
 import scala.util.{Failure, Success}
 

@@ -28,17 +28,27 @@ object WemoControl {
     }
   }
 
-  def getDevices(wemoConfig: WemoConf): Future[JsValue] = {
-    val switches = wemoConfig.devices.map { device =>
+  def getDevices(wemoService: WemoService): Future[JsValue] = {
+    val switches = wemoService.getServiceConf.devices.filter(_.failedConnections < 1).map { device =>
       device.getState()
         .recover { case ex =>
           Logger.warn(f"Could not connect to device ${device.name}: $ex")
+
+          val devices = wemoService.getServiceConf.devices.filter(_.name != device.name) :+ device.setFailedConnections(device.failedConnections + 1)
+          wemoService.setServiceConf(WemoConf(devices))
+
           DomoSwitch(WemoService.serviceId, device.serial, status = false, device.name, available = false)
         }
     }
 
     Future.sequence(switches)
       .map(switches => Json.toJson(switches))
+
+    /*
+    // Reset failed connections while config not implemented
+    val switchess = wemoService.getServiceConf.devices.map(device => device.setFailedConnections(0))
+    wemoService.setServiceConf(WemoConf(switchess))
+     */
   }
 
   def getSwitchStatus(wemoConfig: WemoConf, id: String): Future[DomoSwitch] = {
@@ -71,5 +81,34 @@ object WemoControl {
         }
         promise.future
     }
+  }
+
+  def getWemoUsage(id: String, wemoConfig: WemoConf): Future[Option[WemoMonitorData]] = {
+    wemoConfig.devices
+      .find(device => device.name == id && device.deviceType == WemoDeviceType.Monitor) match {
+      case Some(device) =>
+        val usage = device.getUsage()
+          .recover { case ex =>
+            Logger.warn(f"Could not connect to device ${device.name}: $ex")
+            None
+          }
+        usage
+
+      case _ =>
+        Logger.error(s"Device $id not found or it is not a Monitor device")
+        Future(None)
+    }
+  }
+
+  def getWemoDevicesUsage(wemoConfig: WemoConf): Future[Seq[WemoMonitorData]] = {
+    val futures = wemoConfig.devices.filter(_.deviceType == WemoDeviceType.Monitor).map { device =>
+      device.getUsage()
+        .recover { case ex =>
+          Logger.warn(f"Could not connect to device ${device.name}: $ex")
+          None
+        }
+    }
+
+    Future.sequence(futures).map(_.flatten)
   }
 }

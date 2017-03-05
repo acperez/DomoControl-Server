@@ -9,6 +9,7 @@ trait DomoService {
 
   def init(): Unit
   def stop(): Unit
+  def cron(): Unit
   def connect(): Unit
   def disconnect(): Unit
 

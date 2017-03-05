@@ -1,0 +1,53 @@
+#wemo_usage_panel {
+  display: block;
+}
+
+#wemo_history_panel {
+  display: none;
+}
+
+.wemo_device {
+  font-size: 1.6em;
+  color: white;
+  background-color: #333333;
+  margin: 25px 0;
+}
+
+.wemo_data_pair {
+  font-size: 1.4em;
+  color: white;
+  border-width: 1px 0 0 0;
+  border-style: solid;
+  border-color: white;
+  padding: 10px;
+}
+
+.wemo_data_pair_first {
+  border-width: 0;
+}
+
+.wemo_data_label {
+  float: left;
+}
+
+.wemo_data_value {
+  float: right;
+}
+
+.wemo_refresh_ntm {
+  width: 25%;
+}
+
+.wemo_btn_container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.wemo_canvas_container {
+  position: absolute;
+  width: 100%;
+  bottom: 4em;
+  top: 9em;
+}
