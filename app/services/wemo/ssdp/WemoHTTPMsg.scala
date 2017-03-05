@@ -47,4 +47,13 @@ object WemoHTTPMsg {
       s"""   </s:Body>$NEWLINE""" +
       s"""</s:Envelope>$NEWLINE$NEWLINE"""
     ).getBytes("UTF-8")
+
+  lazy val getMonitorData: Array[Byte] =
+    ( s"""<?xml version="1.0" encoding="utf-8"?>$NEWLINE""" +
+      s"""<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">$NEWLINE""" +
+      s"""   <s:Body>$NEWLINE""" +
+      s"""      <u:GetInsightParams xmlns:u=\"urn:Belkin:service:insight:1\"></u:GetInsightParams>$NEWLINE""" +
+      s"""   </s:Body>$NEWLINE""" +
+      s"""</s:Envelope>$NEWLINE$NEWLINE"""
+      ).getBytes("UTF-8")
 }

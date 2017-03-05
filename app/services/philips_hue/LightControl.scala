@@ -11,7 +11,7 @@ import com.philips.lighting.hue.sdk.{PHAccessPoint, PHBridgeSearchManager, PHHue
 import com.philips.lighting.model.{PHBridgeResource, PHHueError, PHLight}
 import models.config.PhilipsConf
 import play.api.Logger
-import services.common.SceneManager
+import services.database_managers.SceneManager
 import services.philips_hue.PhilipsActor.SetColor
 
 import scala.collection.JavaConverters._

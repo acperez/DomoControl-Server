@@ -18,6 +18,7 @@
         <title>DomoControl</title>
 
         <link rel="stylesheet" href="css/philips.css">
+        <link rel="stylesheet" href="css/wemo.css">
         <link rel="stylesheet" href="css/domocontrol.css">
         <link rel="stylesheet" href="css/switches.css">
 
@@ -27,6 +28,8 @@
         <script type="text/javascript" src="js/animations.js"></script>
         <script type="text/javascript" src="js/switches.js"></script>
         <script type="text/javascript" src="js/philips.js"></script>
+        <script type="text/javascript" src="js/wemo.js"></script>
+        <script type="text/javascript" src="js/wemo_history.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/domocontrol.js"></script>
     </head>
@@ -127,10 +130,44 @@
                     </div>
                 </div>
 
+                <div id="wemo" class="content">
+                    <div class="toggle">
+                        <div class="toggle_container">
+                            <input id="usage_toggle" type="radio" name="wemo_toggle" value="usage" class="toggle_input" checked="">
+                            <label for="usage_toggle" class="toggle_label toggle_left">Usage</label
+                            ><input id="history_toggle" type="radio" name="wemo_toggle" value="history" class="toggle_input"
+                        ><label for="history_toggle" class="toggle_label toggle_right">History</label>
+                        </div>
+                    </div>
+
+                    <select id="usage_device_selector" class="wemo_device"></select>
+
+                    <div id="wemo_usage_panel">
+                        <div id="wemo_data">
+                            <div id="usage_panel"></div>
+                        </div>
+
+                        <div class="wemo_btn_container">
+                            <a id="wemo_btn_refresh" class="btn wemo_refresh_ntm">Refresh</a>
+                        </div>
+                    </div>
+
+                    <div id="wemo_history_panel">
+                        <div id="graph_container" class="wemo_canvas_container">
+                            <canvas id="graph" style="background-color: white"></canvas>
+                        </div>
+                        <div class="wemo_btn_container">
+                            <a id="wemo_prev_month" class="button_pick button_pick_left">&#x25c0;</a>
+                            <a id="wemo_btn_refresh_history" class="btn wemo_refresh_ntm">Refresh</a>
+                            <a id="wemo_btn_clear_history" class="btn wemo_refresh_ntm">Clear</a>
+                            <a id="wemo_next_month" class="button_pick button_pick_right disabled">&#x25b6;</a>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="fake" class="content">
                     fake
                 </div>
-
             </div>
         </div>
     </body>

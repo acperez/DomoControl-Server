@@ -11,6 +11,7 @@ import play.api.inject.ApplicationLifecycle
 import play.api.libs.json._
 import play.api.mvc.{Result, Results}
 import reactivemongo.core.errors.DatabaseException
+import services.database_managers.SceneManager
 import sun.misc.BASE64Decoder
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,6 +64,8 @@ class LightService @Inject() (
     Logger.info("Stop Philips Hue service")
     disconnect()
   }
+
+  override def cron(): Unit = {}
 
   override def connect(): Unit = LightControl.connect(getServiceConf, lightListener)
 

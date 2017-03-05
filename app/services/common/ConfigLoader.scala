@@ -20,7 +20,7 @@ import scala.util.{Failure, Success, Try}
 @Singleton
 class ConfigLoader @Inject()(cache: CacheApi, reactiveMongoApi: ReactiveMongoApi) {
 
-  def collection = reactiveMongoApi.database.map(_.collection[JSONCollection]("config"))
+  def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("config"))
   collection.map(_.indexesManager.ensure(Index(Seq("id" -> IndexType.Ascending), unique = true)))
 
   def getConfig[T <: DomoConfiguration: ClassTag](defaultConf: T)(implicit reads: Reads[T], writes: OWrites[T]): T = {
@@ -45,7 +45,7 @@ class ConfigLoader @Inject()(cache: CacheApi, reactiveMongoApi: ReactiveMongoApi
     }
   }
 
-  def setConfig[T <: DomoConfiguration: ClassTag](conf: T)(implicit writes: OWrites[T]) = {
+  def setConfig[T <: DomoConfiguration: ClassTag](conf: T)(implicit writes: OWrites[T]): Unit = {
     val currentConfOption = cache.get(f"conf-${conf.getId}")
     if ((currentConfOption.nonEmpty && !currentConfOption.get.equals(conf)) || currentConfOption.isEmpty) {
       updateOrSave(conf)
@@ -59,7 +59,7 @@ class ConfigLoader @Inject()(cache: CacheApi, reactiveMongoApi: ReactiveMongoApi
        .one[T])
   }
 
-  def save[T <: DomoConfiguration](conf: T)(implicit ec: ExecutionContext, writes: OWrites[T]) = {
+  def save[T <: DomoConfiguration](conf: T)(implicit ec: ExecutionContext, writes: OWrites[T]): Unit = {
     val result = collection
       .flatMap(
         _.insert(conf)
