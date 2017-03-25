@@ -5,6 +5,7 @@ function init() {
   Switches.init();
   Philips.init();
   Wemo.init();
+  SwitchesSettings.init();
 }
 
 function loadSwitches() {

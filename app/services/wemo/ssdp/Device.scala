@@ -177,6 +177,7 @@ case class Device(id: String, baseUrl: URL, deviceType: String) {
 
       Some(WemoMonitorData(
         id = id,
+        alias = None,
         timestamp = timestamp,
         state = data(0).toInt > 0,
         lastStateChange = data(1).toLong * 1000,

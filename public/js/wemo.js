@@ -51,7 +51,8 @@ var Wemo = (function() {
 
     monitorData.forEach(function(data) {
       var selectOption = document.createElement('option');
-      var selectText = document.createTextNode(data.id);
+      selectOption.value = data.id;
+      var selectText = document.createTextNode(data.alias ? data.alias : data.id);
       selectOption.appendChild(selectText);
       usageSelect.appendChild(selectOption);
 
@@ -59,7 +60,9 @@ var Wemo = (function() {
       usageDiv.appendChild(dataDiv);
     });
 
-    document.getElementById('usage-' + usageSelect.value).style.display = 'block';
+    if (monitorData.length > 0) {
+      document.getElementById('usage-' + usageSelect.value).style.display = 'block';
+    }
     usageSelect.setAttribute("data-prev", usageSelect.value);
 
     usageSelect.onchange = function() {

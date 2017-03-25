@@ -1,34 +1,21 @@
 package controllers
 
-import javax.inject.Inject
+import javax.inject._
 
 import akka.actor.ActorSystem
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
-import services.common.{DomoServices, DomoSwitchService}
+import services.common.{DomoServiceManager, DomoSwitchService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DomoSwitchController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServices) extends Controller {
-
-  implicit  val customExecutionContext: ExecutionContext = akkaSystem.dispatchers.lookup("custom-context")
-
-  case class DomoRequest[A](service: DomoSwitchService, request: Request[A]) extends WrappedRequest[A](request)
-
-  def DomoAction(itemId: Int) = new ActionBuilder[DomoRequest] with ActionRefiner[Request, DomoRequest] {
-    def refine[A](request: Request[A]): Future[Either[Result, DomoRequest[A]]] = Future.successful {
-      domoServices.services.get(itemId) match {
-        case None => Left(NotFound)
-        case Some(service: DomoSwitchService) =>
-          Right(DomoRequest(service, request))
-        case Some(_) => Left(NotFound)
-      }
-    }
-  }
+@Singleton
+class DomoSwitchController @Inject()(akkaSystem: ActorSystem, val serviceManager: DomoServiceManager) extends Controller with DomoAction[DomoSwitchService] {
+  implicit val customExecutionContext: ExecutionContext = akkaSystem.dispatchers.lookup("custom-context")
 
   def getAllSwitches: Action[AnyContent] = Action.async {
-    val switchesFuture = domoServices.services.flatMap { case (_, service: DomoSwitchService) =>
+    val switchesFuture = serviceManager.services.flatMap { case (_, service: DomoSwitchService) =>
       Some(service.getSwitchesWithId)
     }
 
@@ -41,18 +28,22 @@ class DomoSwitchController @Inject()(akkaSystem: ActorSystem, domoServices: Domo
   }
 
   def getSwitches(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.getSwitches.map(switches => Ok(switches))
+    domoRequest.service.asInstanceOf[DomoSwitchService].getSwitches.map(switches => Ok(switches))
   }
 
   def getSwitch(id: Int, switchId: String): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.getSwitch(switchId)
+    domoRequest.service.asInstanceOf[DomoSwitchService].getSwitch(switchId)
   }
 
   def setSwitchesStatus(id: Int, status: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.setSwitchesStatus(status > 0)
+    domoRequest.service.asInstanceOf[DomoSwitchService].setSwitchesStatus(status > 0)
   }
 
   def setSwitchStatus(id: Int, switchId: String, status: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.setSwitchStatus(switchId, status > 0)
+    domoRequest.service.asInstanceOf[DomoSwitchService].setSwitchStatus(switchId, status > 0)
+  }
+
+  def setSwitchAlias(id: Int, switchId: String, alias: String): Action[AnyContent] = DomoAction(id).async { domoRequest =>
+    domoRequest.service.asInstanceOf[DomoSwitchService].setSwitchAlias(switchId, alias)
   }
 }

@@ -30,6 +30,8 @@
         <script type="text/javascript" src="js/philips.js"></script>
         <script type="text/javascript" src="js/wemo.js"></script>
         <script type="text/javascript" src="js/wemo_history.js"></script>
+        <script type="text/javascript" src="js/switches_settings.js"></script>
+        <script type="text/javascript" src="js/switch_group.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/domocontrol.js"></script>
     </head>
@@ -58,7 +60,8 @@
                 </div>
                 <div id="menu_settings">
                     <div class="menu_header">Settings</div>
-                    <div id="menu_settings_philips_hue" class="menu_item menu_item_on">Philips Hue</div>
+                    <div id="menu_settings_switches" class="menu_item menu_item_on">Switches</div>
+                    <div id="menu_settings_philips_hue" class="menu_item">Philips Hue</div>
                     <div id="menu_settings_wemo" class="menu_item">Wemo</div>
                 </div>
                 <div class="menu_shadow"></div>
@@ -77,6 +80,35 @@
                     <div id="switches_container">
                         <div id="switches_items">
                         </div>
+                    </div>
+                </div>
+
+                <div id="switches_settings" class="content">
+                    <div class="toggle">
+                        <div class="toggle_container">
+                            <input id="switches_name_toggle" type="radio" name="switches_settings_toggle" value="names" class="toggle_input" checked="">
+                            <label for="switches_name_toggle" class="toggle_label toggle_left">Names</label
+                            ><input id="switches_groups_toggle" type="radio" name="switches_settings_toggle" value="groups" class="toggle_input"
+                        ><label for="switches_groups_toggle" class="toggle_label toggle_right">Groups</label>
+                        </div>
+                    </div>
+
+                    <div id="switches_settings_names_panel">
+                        <div class="switches_settings_header">
+                            <p class="switches_settings_title">Switch name editor</p>
+                        </div>
+                        <div id="switches_settings_items" class="switches_settings_scroll"></div>
+                    </div>
+
+                    <div id="switches_settings_groups_panel">
+                        <div class="switches_settings_header">
+                            <p class="switches_settings_title">Switch group editor</p>
+                            <a id="switches_show_add_btn" class="button_pick button_pick_left settings_add_btn">
+                                <img src="img/plus.svg" class="settings_btn_img">
+                            </a>
+                        </div>
+
+                        <div id="switches_settings_list" class="switches_settings_scroll"></div>
                     </div>
                 </div>
 
@@ -130,6 +162,10 @@
                     </div>
                 </div>
 
+                <div id="philips_hue_settings" class="content">
+                    Philips settings
+                </div>
+
                 <div id="wemo" class="content">
                     <div class="toggle">
                         <div class="toggle_container">
@@ -154,7 +190,7 @@
 
                     <div id="wemo_history_panel">
                         <div id="graph_container" class="wemo_canvas_container">
-                            <canvas id="graph" style="background-color: white"></canvas>
+                            <canvas id="graph"></canvas>
                         </div>
                         <div class="wemo_btn_container">
                             <a id="wemo_prev_month" class="button_pick button_pick_left">&#x25c0;</a>
@@ -163,6 +199,10 @@
                             <a id="wemo_next_month" class="button_pick button_pick_right disabled">&#x25b6;</a>
                         </div>
                     </div>
+                </div>
+
+                <div id="wemo_settings" class="content">
+                    Wemo settings
                 </div>
 
                 <div id="fake" class="content">

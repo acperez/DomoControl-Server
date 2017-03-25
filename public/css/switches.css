@@ -131,28 +131,6 @@
     -webkit-transition: background-color 350ms, box-shadow 700ms;
 }
 
-/*
-  <div class="button">
-      <div class="btn_label">Wemo light</div>
-      <a rel="external" id="button">&#xF011;</a>
-      <span></span>
-  </div>
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .button2 {
   width: 150px;
   margin-bottom: 25px;
@@ -243,9 +221,130 @@
               inset 0px 4px 6px rgba(0, 0, 0, 0.5);
 }
 
-/*
-  <div class="button2">
-      <div class="btn_label">Wemo light</div>
-      <a rel="external" id="button2">&#xF011;</a>
-  </div>
-*/
+#switches_settings_names_panel {
+  display: block;
+}
+
+#switches_settings_groups_panel {
+  display: none;
+}
+
+.switches_settings_scroll {
+  overflow-y: auto;
+  position: absolute;
+  bottom: 0;
+  top: 7.5em;
+  width: 100%;
+}
+
+.switches_settings_list {
+  list-style-type: none;
+  margin: 0 14px;
+  padding: 0;
+  color: white;
+}
+
+.settings_switch_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+.settings_switch_input {
+  font-size: inherit;
+  font-family: initial;
+}
+
+.settings_switch_btn {
+  padding: 4px 10px;
+  margin-left: 16px;
+}
+
+.switches_settings_header {
+  font-size: 1.6em;
+  color: white;
+  line-height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settings_add_btn {
+  display: inline-block;
+  float: none;
+  height: 26px;
+  padding: 6px;
+  line-height: 26px;
+}
+
+.settings_add_btn:before {
+  height: 43px;
+  width: 42px;
+}
+
+.settings_btn_img {
+  width: 26px;
+}
+
+.switches_settings_group_item {
+  background-color: #868686;
+  padding: 16px 14px;
+  color: white;
+  margin-bottom: 14px;
+  margin-right: 10px;
+}
+
+.settings_switch_btn_container {
+  width: 100%;
+  text-align: center;
+  font-size: 1.4em;
+  margin-top: 16px;
+}
+
+.settings_switch_btn_big {
+  width: 25%;
+}
+
+.settings_switch_mapping_list {
+  font-size: 1.2em;
+  padding: 0 18px;
+  color: black;
+}
+
+.settings_switch_mapping_select {
+  width: 50%;
+  font-size: 1em;
+  vertical-align: top;
+  height: 36px;
+  margin-top: 2px;
+}
+
+.settings_mapping_item {
+  width: 50%;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.settings_mapping_item_span {
+  padding: 6px;
+  margin-top: 2px;
+  margin-left: 6px;
+}
+
+
+
+.settings_add_btn_small {
+  display: inline-block;
+  float: none;
+  height: 22px;
+  padding: 6px;
+  line-height: 26px;
+}
+
+.settings_btn_img_small {
+  width: 22px;
+}
