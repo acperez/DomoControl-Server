@@ -21,5 +21,7 @@ trait DomoSwitchService extends DomoService {
 
   def setSwitchesStatus(status: Boolean): Future[Result]
   def setSwitchStatus(id: String, status: Boolean): Future[Result]
+
+  def setSwitchAlias(id: String, alias: String): Future[Result]
 }
 

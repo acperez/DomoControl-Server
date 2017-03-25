@@ -94,7 +94,7 @@ object LightControl {
             val color = LightUtils.getColor(light)
             val hexColor = "#" + Integer.toHexString(color & 0xffffff)
 
-            PhilipsSwitch(LightService.serviceId, id, status, name, available = true, hexColor)
+            PhilipsSwitch(LightService.serviceId, id, status, name, None, available = true, hexColor)
           }
           promise.success(switches.toSeq)
       }
@@ -118,7 +118,7 @@ object LightControl {
               val color = LightUtils.getColor(light)
               val hexColor = "#" + Integer.toHexString(color & 0xffffff)
 
-              promise.success(PhilipsSwitch(LightService.serviceId, id, status, name, available = true, hexColor))
+              promise.success(PhilipsSwitch(LightService.serviceId, id, status, name, None, available = true, hexColor))
           }
       }
     }
@@ -226,5 +226,41 @@ object LightControl {
     }
 
     promise.future
+  }
+
+  def setLightName(id: String, name: String)(implicit ec: ExecutionContext): Future[Unit] = {
+    val bridge = phHueSDK.getSelectedBridge
+
+    if (bridge == null) Future.failed(BridgeNotAvailableException())
+    else {
+
+      Try(internalGetLights()) match {
+        case Failure(ex) => Future.failed(ex)
+        case Success(lights) =>
+          lights.get(id) match {
+            case None => Future.failed(LightNotFoundException(id))
+            case Some(light) =>
+
+              val promise = Promise[Unit]
+              Future {
+                light.setName(name)
+                bridge.updateLight(light, new PHLightListener {
+                  override def onReceivingLights(list: util.List[PHBridgeResource]): Unit = {}
+
+                  override def onSearchComplete(): Unit = {}
+
+                  override def onReceivingLightDetails(phLight: PHLight): Unit = {}
+
+                  override def onError(i: Int, s: String): Unit = promise.failure(LightUpdateException(s))
+
+                  override def onStateUpdate(map: util.Map[String, String], list: util.List[PHHueError]): Unit = {}
+
+                  override def onSuccess(): Unit = promise.success(Unit)
+                })
+              }
+              promise.future
+          }
+      }
+    }
   }
 }

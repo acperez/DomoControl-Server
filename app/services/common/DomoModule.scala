@@ -21,13 +21,13 @@ class DomoModule extends AbstractModule {
 }
 
 @Singleton
-class DomoModuleProxy @Inject() (appLifecycle: ApplicationLifecycle, domoServices: DomoServices, system: ActorSystem) {
-  domoServices.services.values.foreach { service =>
+class DomoModuleProxy @Inject() (appLifecycle: ApplicationLifecycle, serviceManager: DomoServiceManager, system: ActorSystem) {
+  serviceManager.services.values.foreach { service =>
     service.init()
   }
 
   appLifecycle.addStopHook { () =>
-    domoServices.services.values.foreach { service =>
+    serviceManager.services.values.foreach { service =>
       service.stop()
     }
     Future.successful(())
@@ -35,7 +35,7 @@ class DomoModuleProxy @Inject() (appLifecycle: ApplicationLifecycle, domoService
 
   registerDailyJob( () => {
     Logger.info("Execute daily scheduled operations.")
-    domoServices.services.values.foreach { service =>
+    serviceManager.services.values.foreach { service =>
       service.cron()
     }
   }, 23, 0)
@@ -47,7 +47,7 @@ class DomoModuleProxy @Inject() (appLifecycle: ApplicationLifecycle, domoService
 
     val initialDelayMs = getNextInitialDelayMs(Calendar.getInstance(), hour, minute)
 
-    Logger.info("Register daily job at " + hour + ":" + minute)
+    Logger.info(f"Register daily job at $hour%02d:$minute%02d")
     system.scheduler.schedule(initialDelayMs milliseconds, dayMs milliseconds) {
       job()
     }

@@ -1,43 +1,31 @@
 package controllers
 
-import javax.inject.Inject
+import javax.inject._
 
 import akka.actor.ActorSystem
 import play.api.mvc._
-import services.common.{DomoServices, DomoWemoService}
+import services.common.{DomoServiceManager, DomoWemoService}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-class DomoWemoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServices) extends Controller {
+@Singleton
+class DomoWemoController @Inject()(akkaSystem: ActorSystem, val serviceManager: DomoServiceManager) extends Controller with DomoAction[DomoWemoService] {
 
   implicit  val customExecutionContext: ExecutionContext = akkaSystem.dispatchers.lookup("custom-context")
 
-  case class DomoRequest[A](service: DomoWemoService, request: Request[A]) extends WrappedRequest[A](request)
-
-  def DomoAction(itemId: Int) = new ActionBuilder[DomoRequest] with ActionRefiner[Request, DomoRequest] {
-    def refine[A](request: Request[A]): Future[Either[Result, DomoRequest[A]]] = Future.successful {
-      domoServices.services.get(itemId) match {
-        case None => Left(NotFound)
-        case Some(service: DomoWemoService) =>
-          Right(DomoRequest(service, request))
-        case Some(_) => Left(NotFound)
-      }
-    }
-  }
-
   def usageForAll(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.getUsageForAll
+    domoRequest.service.asInstanceOf[DomoWemoService].getUsageForAll
   }
 
   def usage(id: Int, plugId: String): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.getUsage(plugId)
+    domoRequest.service.asInstanceOf[DomoWemoService].getUsage(plugId)
   }
 
   def history(id: Int, plugId: String, month: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.getHistory(plugId, month)
+    domoRequest.service.asInstanceOf[DomoWemoService].getHistory(plugId, month)
   }
 
   def clearHistory(id: Int, plugId: String): Action[AnyContent] = DomoAction(id).async { domoRequest =>
-    domoRequest.service.clearHistory(plugId)
+    domoRequest.service.asInstanceOf[DomoWemoService].clearHistory(plugId)
   }
 }

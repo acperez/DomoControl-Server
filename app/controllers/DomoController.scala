@@ -6,69 +6,52 @@ import javax.inject._
 import play.api.Logger
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc._
-import services.common.{DomoService, DomoServices}
+import services.common.{DomoServiceManager, DomoSwitchService}
+import services.virtual_switch.VirtualService
 import services.wemo.WemoService
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
-/**
- * This controller creates an `Action` that demonstrates how to write
- * simple asynchronous code in a controller. It uses a timer to
- * asynchronously delay sending a response for 1 second.
- *
- * @param akkaSystem We need the `ActorSystem`'s `Scheduler` to
- * run code after a delay.
- */
 @Singleton
-class DomoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServices) extends Controller {
+class DomoController @Inject()(akkaSystem: ActorSystem, val serviceManager: DomoServiceManager) extends Controller with DomoAction[DomoSwitchService] {
 
   implicit val customExecutionContext: ExecutionContext = akkaSystem.dispatchers.lookup("custom-context")
 
   def systems = Action {
-    Ok(Json.toJson(domoServices.services.values.toList))
+    Ok(Json.toJson(serviceManager.services.values.toList))
   }
 
-  case class DomoRequest[A](service: DomoService, request: Request[A]) extends WrappedRequest[A](request)
-
-  def DomoAction(itemId: Int) = new ActionBuilder[DomoRequest] with ActionRefiner[Request, DomoRequest] {
-    def refine[A](request: Request[A]): Future[Either[Result, DomoRequest[A]]] = Future.successful {
-      domoServices.services.get(itemId) match {
-        case None => Left(NotFound)
-        case Some(service) =>
-          Right(DomoRequest(service, request))
-      }
-    }
+  def getConf(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
+    val conf = domoRequest.service.getConf
+    Future.successful(Ok(conf))
   }
 
-  def getConf(id: Int): Action[AnyContent] = DomoAction(id) { domoRequest =>
-    Ok(domoRequest.service.getConf)
-  }
-
-  def setConf(id: Int): Action[AnyContent] = DomoAction(id) { domoRequest =>
+  def setConf(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
     val conf = domoRequest.request.body.asJson.get
     domoRequest.service.setConf(conf)
-    Ok("ok")
+    Future.successful(Ok)
   }
 
-  def getConnectionStatus(id: Int): Action[AnyContent] = DomoAction(id) { domoRequest =>
-    Ok(domoRequest.service.getConnectionStatus)
+  def getConnectionStatus(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
+    val status = domoRequest.service.getConnectionStatus
+    Future.successful(Ok(status))
   }
 
-  def connect(id: Int): Action[AnyContent] = DomoAction(id) { domoRequest =>
+  def connect(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
     domoRequest.service.connect()
-    Ok("ok")
+    Future.successful(Ok)
   }
 
-  def disconnect(id: Int): Action[AnyContent] = DomoAction(id) { domoRequest =>
+  def disconnect(id: Int): Action[AnyContent] = DomoAction(id).async { domoRequest =>
     domoRequest.service.disconnect()
-    Ok("ok")
+    Future.successful(Ok)
   }
 
   def getDomoControlData: Action[AnyContent] = Action.async {
     val promise = Promise[Result]
     Future {
 
-      val services = domoServices.services
+      val services = serviceManager.services
 
       val systemFutures = services.map { case (id, service) =>
           service.getSwitches.map { switches =>
@@ -84,7 +67,15 @@ class DomoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServic
         case _ => None
       }
 
+      val virtualFutures = services.values.flatMap {
+        case service: VirtualService => Some(service.getGroups)
+        case _ => None
+      }
+
       val monitorsRequest = Future.sequence(monitorFutures)
+      val groupsRequest = Future.sequence(virtualFutures).map { data =>
+        data.flatten.toSeq.map (group => group.id -> Json.toJson(group))
+      }
       val systemRequest = Future.sequence(systemFutures).map { data =>
         JsObject(data.toMap)
       }
@@ -92,12 +83,14 @@ class DomoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServic
       val futures = for{
         monitors <- monitorsRequest
         systems <- systemRequest
-      } yield (monitors, systems)
+        groups <- groupsRequest
+      } yield (monitors, systems, groups)
 
-      futures.map { case (monitors, systems) =>
-        val scenes = domoServices.lightScenes.as[JsArray]
+      futures.map { case (monitors, systems, groups) =>
+        val scenes = serviceManager.lightScenes.as[JsArray]
         val data = Json.toJson(monitors.flatten).as[JsArray]
-        val result = Ok(views.js.domoControlData.render(systems, scenes, data)).as("text/javascript utf-8")
+        val groupData = JsObject(groups)
+        val result = Ok(views.js.domoControlData.render(systems, scenes, data, groupData)).as("text/javascript utf-8")
         promise.success(result)
       }.recover { case exception =>
         Logger.error(f"Error getting systems js: ${exception.getMessage}")
@@ -107,5 +100,4 @@ class DomoController @Inject()(akkaSystem: ActorSystem, domoServices: DomoServic
 
     promise.future
   }
-
 }

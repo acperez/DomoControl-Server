@@ -37,7 +37,7 @@ object WemoControl {
           val devices = wemoService.getServiceConf.devices.filter(_.name != device.name) :+ device.setFailedConnections(device.failedConnections + 1)
           wemoService.setServiceConf(WemoConf(devices))
 
-          DomoSwitch(WemoService.serviceId, device.serial, status = false, device.name, available = false)
+          DomoSwitch(WemoService.serviceId, device.serial, status = false, device.name, device.alias, available = false)
         }
     }
 
@@ -80,6 +80,16 @@ object WemoControl {
           promise.failure(WemoDeviceNotFoundException(id))
         }
         promise.future
+    }
+  }
+
+  def setSwitchAlias(wemoService: WemoService, id: String, alias: String): Future[Unit] = {
+    wemoService.getServiceConf.devices.find(_.serial == id) match {
+      case None => Future.failed(WemoDeviceNotFoundException(id))
+      case Some(device) =>
+        val devices = wemoService.getServiceConf.devices.filter(_.name != device.name) :+ device.setAlias(alias)
+        wemoService.setServiceConf(WemoConf(devices))
+        Future.successful(Unit)
     }
   }
 

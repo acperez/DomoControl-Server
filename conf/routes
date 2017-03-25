@@ -26,6 +26,7 @@ GET     /system/:id/switch/:switchId                    controllers.DomoSwitchCo
 GET     /system/:id/switches/:status                    controllers.DomoSwitchController.setSwitchesStatus(id: Int, status: Int)
 GET     /system/:id/switch/:switchId/:status            controllers.DomoSwitchController.setSwitchStatus(id: Int, switchId: String, status: Int)
 
+GET     /system/:id/switch/:switchId/alias/:alias       controllers.DomoSwitchController.setSwitchAlias(id: Int, switchId: String, alias: String)
 
 # DomoPhilipsController
 
@@ -41,6 +42,12 @@ GET     /system/:id/plugs/usage                         controllers.DomoWemoCont
 GET     /system/:id/plugs/usage/device/:plugId          controllers.DomoWemoController.usage(id: Int, plugId: String)
 GET     /system/:id/plugs/usage/history/:plugId/:month  controllers.DomoWemoController.history(id: Int, plugId: String, month: Int)
 DELETE  /system/:id/plugs/usage/history/:plugId         controllers.DomoWemoController.clearHistory(id: Int, plugId: String)
+
+# DomoVirtualController
+
+POST    /system/:id/group/                              controllers.DomoVirtualController.addSwitch(id: Int)
+DELETE  /system/:id/group/:switchId                     controllers.DomoVirtualController.removeSwitch(id: Int, switchId: String)
+PUT     /system/:id/group/:switchId                     controllers.DomoVirtualController.updateSwitch(id: Int, switchId: String)
 
 # HTML resources
 

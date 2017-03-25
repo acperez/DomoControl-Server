@@ -62,7 +62,7 @@ object SSDPFinder {
           if (SSDPPacket.validatePacket(responsePacket)) {
             getDevice(SSDPPacket(responsePacket)) match {
               case Some(rawDevice) =>
-                val device = WemoDevice(rawDevice.id, rawDevice.baseUrl.toString, rawDevice.deviceType, 0)
+                val device = WemoDevice(rawDevice.id, None, rawDevice.baseUrl.toString, rawDevice.deviceType, 0)
                 if (!wemoService.getServiceConf.devices.exists(_.serial == device.serial)) devices += device
               case None => //Logger.warn("SSDPFinder: not valid device")
             }

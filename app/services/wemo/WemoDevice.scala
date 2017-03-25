@@ -13,6 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class WemoDevice(
   serial: String,
   name: String,
+  alias: Option[String],
   description: String,
   url: String,
   deviceType: WemoDeviceType,
@@ -26,30 +27,39 @@ case class WemoDevice(
 
   def setState(state: Boolean, retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[Boolean] = device.setState(state, retries)
 
-  def getState(retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[DomoSwitch] = device.getState(retries)
-    .map(state => DomoSwitch(WemoService.serviceId, serial, state, name, available = true))
+  def setAlias(value: String): WemoDevice = copy(alias = Some(value))
 
-  def getUsage(retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[Option[WemoMonitorData]] = device.getUsage(retries)
+  def getState(retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[DomoSwitch] = device.getState(retries)
+    .map(state => DomoSwitch(WemoService.serviceId, serial, state, name, alias, available = true))
+
+  def getUsage(retries: Int = CONNECTION_RETRIES)(implicit ec: ExecutionContext): Future[Option[WemoMonitorData]] =
+    device.getUsage(retries)
+    .map { data =>
+      if (data.nonEmpty) Some(data.get.setAlias(alias))
+      else data
+    }
 }
 
 object WemoDevice {
 
-  def apply(id: String, url: String, deviceType: String, failedConnections: Int): WemoDevice =
-    new WemoDevice(id, id, id, url, WemoDeviceType(deviceType), failedConnections)
+  def apply(id: String, alias: Option[String], url: String, deviceType: String, failedConnections: Int): WemoDevice =
+    new WemoDevice(id, id, alias, id, url, WemoDeviceType(deviceType), failedConnections)
 
   implicit val reads: Reads[WemoDevice] = (
     (JsPath \ "serial").read[String] and
     (JsPath \ "name").read[String] and
+    (JsPath \ "alias").readNullable[String] and
     (JsPath \ "description").read[String] and
     (JsPath \ "url").read[String] and
     (JsPath \ "deviceType").read[String] and
     (JsPath \ "failedConnections").read[Int]
-  )((serial, name, description, url, deviceType, failedConnections) =>
-    WemoDevice.apply(serial, name, description, url, WemoDeviceType(deviceType), failedConnections))
+  )((serial, name, alias, description, url, deviceType, failedConnections) =>
+    WemoDevice.apply(serial, name, alias, description, url, WemoDeviceType(deviceType), failedConnections))
 
   implicit val writes: OWrites[WemoDevice] = (
     (JsPath \ "serial").write[String] and
     (JsPath \ "name").write[String] and
+    (JsPath \ "alias").writeNullable[String] and
     (JsPath \ "description").write[String] and
     (JsPath \ "url").write[String] and
     (JsPath \ "deviceType").write[WemoDeviceType] and

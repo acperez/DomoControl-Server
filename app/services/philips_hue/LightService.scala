@@ -36,8 +36,7 @@ class LightService @Inject() (
   val lightListener = LightListener(this)
 
   def onConnect(): Unit = {
-    val lights = getSwitches
-    Logger.info(f"Light list: $lights")
+    Logger.info("Philips Hue service ready")
   }
 
   def getServiceConf: PhilipsConf = configLoader.getConfig(PhilipsConf(None, None))
@@ -113,6 +112,18 @@ class LightService @Inject() (
         exception match {
           case _: BridgeNotAvailableException => Results.ServiceUnavailable
           case _: LightUpdateException => Results.InternalServerError
+          case _ => Results.InternalServerError
+        }
+    }
+
+  override def setSwitchAlias(id: String, alias: String): Future[Result] = LightControl.setLightName(id, alias)
+    .map(_ => Results.Ok)
+    .recover {
+      case exception =>
+        Logger.error(f"Error setting light name: ${exception.getMessage}")
+        exception match {
+          case _: BridgeNotAvailableException => Results.ServiceUnavailable
+          case _: LightNotFoundException => Results.NotFound
           case _ => Results.InternalServerError
         }
     }

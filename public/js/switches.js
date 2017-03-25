@@ -52,7 +52,7 @@ var Switches = (function() {
 
     var label = document.createElement('div');
     label.classList.add('btn_label');
-    var text = document.createTextNode(domoSwitch.name);
+    var text = document.createTextNode(domoSwitch.alias ? domoSwitch.alias : domoSwitch.name);
     label.appendChild(text);
 
     var icon = document.createElement('a');

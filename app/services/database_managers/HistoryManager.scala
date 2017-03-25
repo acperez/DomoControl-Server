@@ -86,6 +86,7 @@ class HistoryManager @Inject()(env: Environment, reactiveMongoApi: ReactiveMongo
         val timestamp = from + day * (1000L * 60 * 60 * 24)
         val data = WemoMonitorData(
           id,
+          None,
           timestamp,
           random.nextInt(2) == 1,
           random.nextLong(),

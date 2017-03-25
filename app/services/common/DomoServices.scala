@@ -2,7 +2,7 @@ package services.common
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.JsValue
 import services.philips_hue.LightService
 import services.wemo.WemoService
 

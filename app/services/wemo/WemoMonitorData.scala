@@ -5,6 +5,7 @@ import play.api.libs.json._
 
 case class WemoMonitorData(
   id: String,
+  alias: Option[String],
   timestamp: Long,
   state: Boolean,
   lastStateChange: Long,
@@ -16,12 +17,16 @@ case class WemoMonitorData(
   currentW: Double,
   energyTodayWh: Double,
   energyTotalWh: Double,
-  standbyLimitW: Double)
+  standbyLimitW: Double) {
+
+  def setAlias(value: Option[String]): WemoMonitorData = copy(alias = value)
+}
 
 object WemoMonitorData {
 
   implicit val reads: Reads[WemoMonitorData] = (
     (JsPath \ "id").read[String] and
+    (JsPath \ "alias").readNullable[String] and
     (JsPath \ "timestamp").read[Long] and
     (JsPath \ "state").read[Boolean] and
     (JsPath \ "lastStateChange").read[Long] and
@@ -38,6 +43,7 @@ object WemoMonitorData {
 
   implicit val writes: OWrites[WemoMonitorData] = (
     (JsPath \ "id").write[String] and
+    (JsPath \ "alias").writeNullable[String] and
     (JsPath \ "timestamp").write[Long] and
     (JsPath \ "state").write[Boolean] and
     (JsPath \ "lastStateChange").write[Long] and

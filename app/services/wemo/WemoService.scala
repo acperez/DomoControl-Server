@@ -108,6 +108,16 @@ class WemoService @Inject() (
       }
     }
 
+  override def setSwitchAlias(id: String, alias: String): Future[Result] = WemoControl.setSwitchAlias(this, id, alias)
+    .map(_ => Results.Ok)
+    .recover { case exception =>
+      Logger.error(f"Error updating wemo name: ${exception.getMessage}")
+      exception match {
+        case _: WemoDeviceNotFoundException => Results.NotFound
+        case _ => Results.InternalServerError
+      }
+    }
+
   // DomoWemoService methods
 
   override def getUsage(id: String): Future[Result] = getCurrentUsage(id)
