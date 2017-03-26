@@ -81,6 +81,8 @@ class WemoService @Inject() (
 
   override def getSwitches: Future[JsValue] = WemoControl.getDevices(this)
 
+  override def getSwitchRaw(id: String): Future[Boolean] = WemoControl.getSwitchStatus(getServiceConf, id).map(_.status)
+
   override def getSwitch(id: String): Future[Result] = WemoControl.getSwitchStatus(getServiceConf, id)
     .map(switch => Results.Ok(Json.toJson(switch)))
     .recover { case exception =>

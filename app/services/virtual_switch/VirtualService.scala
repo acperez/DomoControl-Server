@@ -52,7 +52,9 @@ class VirtualService @Inject() (
 
   // DomoSwitchService methods
 
-  override def getSwitches: Future[JsValue] = VirtualControl.getDevices(this)
+  override def getSwitches: Future[JsValue] = VirtualControl.getDevices(this, domoServices)
+
+  override def getSwitchRaw(id: String): Future[Boolean] = VirtualControl.getSwitch(this, id).map(_.status)
 
   override def getSwitch(id: String): Future[Result] = VirtualControl.getSwitch(this, id)
     .map(switch => Results.Ok(Json.toJson(switch)))

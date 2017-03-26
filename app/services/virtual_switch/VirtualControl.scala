@@ -12,12 +12,24 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object VirtualControl {
 
-  def getDevices(service: VirtualService): Future[JsValue] = {
+  def getDevices(service: VirtualService, domoServices: DomoServices)(implicit ec: ExecutionContext): Future[JsValue] = {
     val switches = service.getServiceConf.devices.map { device =>
-      DomoSwitch(service.id, device.id, status = false, device.name, device.alias, available = true)
+      val futures = device.switches.map { mapping =>
+        domoServices.services.get(mapping.serviceId) match {
+          case Some(mappingService) => mappingService.getSwitchRaw(mapping.switchId)
+          case _ => Future.successful(false)
+        }
+      }
+      Future.sequence(futures).map { statuses =>
+        if (statuses.contains(false))
+          DomoSwitch(service.id, device.id, status = false, device.name, device.alias, available = true)
+        else
+          DomoSwitch(service.id, device.id, status = true, device.name, device.alias, available = true)
+      }
     }
 
-    Future.successful(Json.toJson(switches))
+    Future.sequence(switches)
+      .map(switches => Json.toJson(switches))
   }
 
   def getDetailedDevices(service: VirtualService): Future[Seq[VirtualDevice]] = {
