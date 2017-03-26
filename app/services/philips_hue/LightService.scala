@@ -80,6 +80,8 @@ class LightService @Inject() (
 
   override def getSwitches: Future[JsValue] = LightControl.getLights.map(lights => Json.toJson(lights))
 
+  override def getSwitchRaw(id: String): Future[Boolean] = LightControl.getLight(id).map(_.status)
+
   override def getSwitch(id: String): Future[Result] = LightControl.getLight(id)
     .map(switch => Results.Ok(Json.toJson(switch.status)))
     .recover {

@@ -80,7 +80,7 @@ var SwitchesSettings = (function() {
         var element = renderSwitch(domoSwitch);
         list.appendChild(element);
 
-        if (domoSwitch.serviceId == 3) {
+        if (domoSwitch.serviceId == 0) {
           var groupElement = new SwitchGroup(listener, domoSwitch, DomoData.groups[domoSwitch.id]);
           listMappingsDiv.appendChild(groupElement);
         }
